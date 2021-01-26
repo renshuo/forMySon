@@ -2,10 +2,14 @@ import javafx.application.Application
 import javafx.beans.property.SimpleStringProperty
 import org.apache.poi.ss.usermodel.{BorderStyle, HorizontalAlignment, VerticalAlignment}
 import org.apache.poi.xssf.usermodel.{XSSFCellStyle, XSSFWorkbook}
+import org.apache.poi.xwpf.usermodel.XWPFTableCell.XWPFVertAlign
+import org.apache.poi.xwpf.usermodel.{ParagraphAlignment, XWPFDocument, XWPFParagraph, XWPFTableCell}
+import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTPageMargins
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.{CTPageMar, CTSectPr, CTTblWidth, CTTc, STBorder}
 import scalafx.application.JFXApp3
 import scalafx.beans.property.StringProperty
 import scalafx.scene.Scene
-import scalafx.scene.control.{Button, Label}
+import scalafx.scene.control.{Button, Label, TextField}
 import scalafx.scene.layout.VBox
 import scalafx.scene.paint.Color.LightGreen
 import scalafx.scene.shape.Rectangle
@@ -14,9 +18,7 @@ import scalafx.stage.Stage
 
 import java.io.{File, FileOutputStream}
 import java.util
-import javax.swing.GroupLayout.Alignment
 import scala.util.Random
-
 
 def msg = "I was compiled by Scala 3. :)"
 
@@ -33,26 +35,91 @@ object Main extends JFXApp3 {
     }
     res
   }
+
+  def setOutterCellStyle(cell: XWPFTableCell): Unit = {
+    val tc: CTTc = cell.getCTTc()
+    val pr = tc.addNewTcPr()
+    val border = pr.addNewTcBorders()
+    border.addNewTop().setVal(STBorder.NIL)
+    border.addNewBottom().setVal(STBorder.NIL)
+    border.addNewLeft().setVal(STBorder.NIL)
+    border.addNewRight().setVal(STBorder.NIL)
+    val margin = pr.addNewTcMar()
+    margin.addNewLeft().setW(500)
+    margin.addNewRight().setW(500)
+    margin.addNewTop().setW(200)
+    margin.addNewBottom().setW(200)
+  }
   
-  def writeToExcel():Unit = {
-    val xls:XSSFWorkbook = new XSSFWorkbook()
+  def setInnerCellStyle(cell: XWPFTableCell): Unit = {
+    cell.setVerticalAlignment(XWPFVertAlign.CENTER)
+    cell.setWidth(s"${256 * 3}")
+    cell.getParagraphs().get(0).setAlignment(ParagraphAlignment.CENTER)
+    val border = cell.getCTTc().getTcPr().addNewTcBorders()
+    border.addNewTop().setVal(STBorder.SINGLE)
+    border.addNewBottom().setVal(STBorder.SINGLE)
+    border.addNewLeft().setVal(STBorder.SINGLE)
+    border.addNewRight().setVal(STBorder.SINGLE)
+  }
+  
+  def writeToWord() = {
+    val doc = new XWPFDocument()
+
+    val pr1: CTSectPr = doc.getDocument().getBody().addNewSectPr()
+    val mgr: CTPageMar = pr1.addNewPgMar()
+    mgr.setLeft(1800) // default 1800L
+    mgr.setRight(1800)
+    mgr.setTop(640)
+    mgr.setBottom(640)
+    
+    
+    for (pageNum <- 0 until 5) {
+      val p = doc.createParagraph()
+      val tb = doc.createTable(6, 3)
+      tb.getRows.forEach { row =>
+        row.getTableCells().forEach { cell =>
+          setOutterCellStyle(cell)
+          val a = generateShult()
+          val tb = cell.insertNewTbl(cell.getCTTc().getTcPr().newCursor())
+          for (i <- 0 until 3) {
+            val xrow = tb.createRow()
+            tb.addRow(xrow, i)
+            xrow.setHeight(600)
+            for (j <- 0 until 3) {
+              val cell = xrow.addNewTableCell()
+              cell.setText("" + (a(i * 3 + j)))
+              setInnerCellStyle(cell)
+            }
+          }
+        }
+      }
+      p.setPageBreak(true)
+    }
+    val fos: FileOutputStream = new FileOutputStream(new File(fileName.get()))
+    doc.write(fos)
+    doc.close()
+    fos.close()
+  }
+
+  def writeToExcel(): Unit = {
+    val xls: XSSFWorkbook = new XSSFWorkbook()
     val sheet = xls.createSheet()
     sheet.setFitToPage(false)
     sheet.setDefaultColumnWidth(6)
     sheet.setDefaultRowHeight(600)
     val fos = new FileOutputStream(new File("./res.xls"))
     val pageNum = 5
-    
-    for (rownum <- 1 to (6*(3+1)+1) * pageNum){
-      val row  = sheet.createRow(rownum)
+
+    for (rownum <- 1 to (6 * (3 + 1) + 1) * pageNum) {
+      val row = sheet.createRow(rownum)
       row.setHeight(600)
-    } 
+    }
     for (p <- 0 until pageNum) {
       for (c <- 0 until 3) {
         for (r <- 0 until 6) {
           val a = generateShult()
           for (i <- 0 until 3) {
-            val row = sheet.getRow(p*24 + r * 4 + i + 1)
+            val row = sheet.getRow(p * 24 + r * 4 + i + 1)
             for (j <- 0 until 3) {
               val cell = row.createCell(c * 4 + j)
               val v = a(i * 3 + j)
@@ -78,8 +145,8 @@ object Main extends JFXApp3 {
     xls.close()
   }
 
-    val a = new SimpleStringProperty("")
-    
+  val fileName = new SimpleStringProperty("./a.doc")
+
   def start(): Unit = {
     stage = new JFXApp3.PrimaryStage {
       title.value = "Hello Stage"
@@ -87,16 +154,22 @@ object Main extends JFXApp3 {
       height = 450
       scene = new Scene {
         content = new VBox(
+          new TextField() {
+            text.bindBidirectional(fileName)
+          },
           new Button("start") {
             onMouseClicked = (ev) => {
-              println("mouse clicked.")
-              val seq = generateShult()
               writeToExcel()
             }
           },
-            new Text() {
-                this.textProperty().bindBidirectional(a)
+          new Button("create doc") {
+            onMouseClicked = (ev) => {
+              writeToWord()
             }
+          },
+          new Text() {
+            this.textProperty().bindBidirectional(fileName)
+          }
         )
       }
 
