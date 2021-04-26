@@ -8,9 +8,11 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTPageMargins
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.{CTPageMar, CTSectPr, CTTblWidth, CTTc, STBorder}
 import scalafx.application.JFXApp3
 import scalafx.beans.property.StringProperty
+import scalafx.geometry.Pos
 import scalafx.scene.Scene
+import scalafx.scene.canvas.Canvas
 import scalafx.scene.control.{Button, Label, TextField}
-import scalafx.scene.layout.VBox
+import scalafx.scene.layout.{BorderPane, HBox, VBox}
 import scalafx.scene.paint.Color.LightGreen
 import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.Text
@@ -47,8 +49,8 @@ object Main extends JFXApp3 {
     val margin = pr.addNewTcMar()
     margin.addNewLeft().setW(500)
     margin.addNewRight().setW(500)
-    margin.addNewTop().setW(200)
-    margin.addNewBottom().setW(200)
+    margin.addNewTop().setW(280)
+    margin.addNewBottom().setW(280)
   }
   
   def setInnerCellStyle(cell: XWPFTableCell): Unit = {
@@ -69,8 +71,8 @@ object Main extends JFXApp3 {
     val mgr: CTPageMar = pr1.addNewPgMar()
     mgr.setLeft(1800) // default 1800L
     mgr.setRight(1800)
-    mgr.setTop(640)
-    mgr.setBottom(640)
+    mgr.setTop(400)
+    mgr.setBottom(400)
     
     
     for (pageNum <- 0 until 5) {
@@ -153,26 +155,34 @@ object Main extends JFXApp3 {
       width = 600
       height = 450
       scene = new Scene {
-        content = new VBox(
-          new TextField() {
-            text.bindBidirectional(fileName)
-          },
-          new Button("start") {
-            onMouseClicked = (ev) => {
-              writeToExcel()
-            }
-          },
-          new Button("create doc") {
-            onMouseClicked = (ev) => {
-              writeToWord()
-            }
-          },
-          new Text() {
-            this.textProperty().bindBidirectional(fileName)
+        content = new BorderPane(){
+          top = new HBox(
+            new Label("上边距："),
+            new TextField(){text="200"}
+          ){
+            this.setAlignment(Pos.BaselineCenter)
           }
-        )
+          left = new VBox(
+            new Label("左边距："),
+            new TextField(){text="200"; minWidth(120)}
+          )
+          right = new VBox(
+            new Label("右边距："),
+            new TextField(){text="300"; minWidth(120)}
+          )
+          bottom = new HBox(
+            new Label("下边距："),
+            new TextField(){text="400"}
+          ){
+            this.setAlignment(Pos.BaselineCenter)
+          }
+          
+          center = new Canvas(){
+            this.width = 600
+            this.height = 400
+          }
+        }
       }
-
     }
   }
 }
