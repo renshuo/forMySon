@@ -1,4 +1,4 @@
-val scala3Version = "3.0.0-RC1"
+val scala3Version = "3.0.0-RC3"
 
 
 lazy val root = project
@@ -20,10 +20,10 @@ lazy val osName = System.getProperty("os.name") match {
 
 lazy val javaFXModules = Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
 libraryDependencies ++= javaFXModules.map( m =>
-    "org.openjfx" % s"javafx-$m" % "15.0.1" classifier osName
+    "org.openjfx" % s"javafx-$m" % "16" classifier osName
 )
 
-libraryDependencies += "org.scalafx" % "scalafx_2.13" % "15.0.1-R21" 
+libraryDependencies += "org.scalafx" % "scalafx_3.0.0-RC3" % "16.0.0-R22"
 
 libraryDependencies += "org.apache.poi" % "poi-ooxml" % "5.0.0"
 libraryDependencies += "org.apache.poi" % "poi-ooxml-full" % "5.0.0"

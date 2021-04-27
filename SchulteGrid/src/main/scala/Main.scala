@@ -164,7 +164,23 @@ object Main extends JFXApp3 {
           }
           left = new VBox(
             new Label("左边距："),
-            new TextField(){text="200"; minWidth(120)}
+            new TextField(){text="200"; minWidth(120)},
+            new TextField() {
+              text.bindBidirectional(fileName)
+            },
+            new Button("Create Excel") {
+              onMouseClicked = (ev) => {
+                writeToExcel()
+              }
+            },
+            new Button("Create Doc") {
+              onMouseClicked = (ev) => {
+                writeToWord()
+              }
+            },
+            new Text() {
+              this.textProperty().bindBidirectional(fileName)
+            }
           )
           right = new VBox(
             new Label("右边距："),
