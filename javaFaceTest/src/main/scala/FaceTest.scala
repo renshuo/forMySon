@@ -19,48 +19,35 @@ import org.opencv.imgproc.Imgproc
 def FaceTest() = {
 
   //System.setProperty("java.library.path", "/home/work/project/forMySon/javaFaceTest/.idea/libraries")
-  println(System.getProperty("java.library.path"))
   // System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
-
-
-  println("hello world")
-  val gra = FFmpegFrameGrabber("/home/work/test.mp4")
-  gra.start()
-  val len = gra.getLengthInAudioFrames()
-  println(s"video len $len")
-
-  import org.bytedeco.javacv.OpenCVFrameConverter
   val converter: OpenCVFrameConverter.ToMat = new OpenCVFrameConverter.ToMat()
+
+  // input
+  val gra = FrameGrabber.createDefault(0) //FFmpegFrameGrabber("/home/work/test.mp4")
+  gra.start()
+  val (height, width) = {
+    var grabbedImage: Mat = converter.convert(gra.grab())
+    (grabbedImage.rows(), grabbedImage.cols())
+  }
+  // process
+
+  val grayImage: Mat = new Mat(height, width, CV_8UC1)
   val haar = new CascadeClassifier("haarcascade_frontalface_default.xml")
 
-  val recorder: FrameRecorder = FrameRecorder.createDefault("output.avi", 640, 480)
-  recorder.start()
+  //output
+  val frame: CanvasFrame = new CanvasFrame("Some Title", CanvasFrame.getDefaultGamma / gra.getGamma)
 
-  for ( i <- 1 to len) {
-    val frame = gra.grabFrame()
-    val grabbedImage:Mat = converter.convert(frame)
-
-    if (frame != null && frame.image != null) {
-
-        val faces = new RectVector
-        haar.detectMultiScale(grabbedImage, faces) //.detectMultiScale(img, faces)
-        println(faces.size())
-        if (faces.size()==1) {
-          for(i <- 0 until faces.size().toInt ) {
-            val r: Rect = faces.get(i)
-            val x: Int = r.x
-            val y: Int = r.y
-            val w: Int = r.width
-            val h: Int = r.height
-            rectangle(grabbedImage, new Point(x, y), new Point(x + w, y + h), new Scalar(0.0, 0.0, 255.0, 0.0), 1, CV_AA, 0)
-            println(faces.get(i))
-          }
-
-
-          import org.opencv.imgcodecs.Imgcodecs
-          recorder.record(converter.convert(grabbedImage))
-        }
-
+  while (frame.isVisible) {
+    val grabbedImage = converter.convert(gra.grab())
+    cvtColor(grabbedImage, grayImage, CV_BGR2GRAY)
+    val faces: RectVector = new RectVector
+    haar.detectMultiScale(grayImage, faces)
+    val total: Int = faces.size.toInt
+    for (i <- 0 until total) {
+      val r: Rect = faces.get(i)
+      val (x,y,w,h) = (r.x, r.y, r.width, r.height)
+      rectangle(grabbedImage, new Point(x, y), new Point(x + w, y + h), AbstractScalar.RED, 1, CV_AA, 0)
     }
+    frame.showImage(converter.convert(grabbedImage))
   }
 }

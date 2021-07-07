@@ -20,16 +20,17 @@ def testJavacv() = {
 //    val file: File = Loader.cacheResource(url)
 //    val classifierName = file.getAbsolutePath
 
-    val classifier: CascadeClassifier = new CascadeClassifier("/home/work/haarcascade_frontalface_default.xml")
+    val classifier: CascadeClassifier = new CascadeClassifier("haarcascade_frontalface_default.xml")
     // The available FrameGrabber classes include OpenCVFrameGrabber (opencv_videoio),
     // DC1394FrameGrabber, FlyCapture2FrameGrabber, OpenKinectFrameGrabber, OpenKinect2FrameGrabber,
     // RealSenseFrameGrabber, RealSense2FrameGrabber, PS3EyeFrameGrabber, VideoInputFrameGrabber, and FFmpegFrameGrabber.
-    val grabber: FrameGrabber = FFmpegFrameGrabber("/home/work/test.mp4") //FrameGrabber.createDefault(0)
+    //val grabber: FrameGrabber = FFmpegFrameGrabber("/home/work/test.mp4") //FrameGrabber.createDefault(0)
+    val grabber: FrameGrabber = FrameGrabber.createDefault(0)
     grabber.start()
 
     // CanvasFrame, FrameGrabber, and FrameRecorder use Frame objects to communicate image data.
     // We need a FrameConverter to interface with other APIs (Android, Java 2D, JavaFX, Tesseract, OpenCV, etc).
-    val converter: OpenCVFrameConverter.ToMat = new OpenCVFrameConverter.ToMat
+    val converter: OpenCVFrameConverter.ToMat = new OpenCVFrameConverter.ToMat()
 
     // FAQ about IplImage and Mat objects from OpenCV:
     // - For custom raw processing of data, createBuffer() returns an NIO direct
@@ -39,10 +40,10 @@ def testJavacv() = {
     //   Java2DFrameConverter and OpenCVFrameConverter, one after the other.
     // - Java2DFrameConverter also has static copy() methods that we can use to transfer
     //   data more directly between BufferedImage and IplImage or Mat via Frame objects.
-    var grabbedImage: Mat = converter.convert(grabber.grabFrame())
+    var grabbedImage: Mat = converter.convert(grabber.grab())
     
-    val height: Int = grabbedImage.rows()
-    val width: Int = grabbedImage.cols()
+    val (height: Int, width:Int) = (grabbedImage.rows(), grabbedImage.cols())
+    //val width: Int = grabbedImage.cols()
 
     // Objects allocated with `new`, clone(), or a create*() factory method are automatically released
     // by the garbage collector, but may still be explicitly released by calling deallocate().
@@ -79,9 +80,9 @@ def testJavacv() = {
     // We can allocate native arrays using constructors taking an integer as argument.
     val hatPoints = new Point(3)
 
-    while ( {
-        frame.isVisible
-    }) { // Let's try to detect some faces! but we need a grayscale image...
+
+    while ( frame.isVisible && grabbedImage != null) { // Let's try to detect some faces! but we need a grayscale image...
+        grabbedImage = converter.convert(grabber.grab())
         cvtColor(grabbedImage, grayImage, CV_BGR2GRAY)
         val faces: RectVector = new RectVector
         classifier.detectMultiScale(grayImage, faces)
@@ -92,12 +93,12 @@ def testJavacv() = {
             val y: Int = r.y
             val w: Int = r.width
             val h: Int = r.height
-            rectangle(grabbedImage, new Point(x, y), new Point(x + w, y + h), new Scalar(0.0, 0.0, 255.0, 255.0), 1, CV_AA, 0)
+            rectangle(grabbedImage, new Point(x, y), new Point(x + w, y + h), AbstractScalar.RED, 1, CV_AA, 0)
             // To access or pass as argument the elements of a native array, call position() before.
             hatPoints.position(0).x(x - w / 10).y(y - h / 10)
             hatPoints.position(1).x(x + w * 11 / 10).y(y - h / 10)
             hatPoints.position(2).x(x + w / 2).y(y - h / 2)
-            fillConvexPoly(grabbedImage, hatPoints.position(0), 3,  new Scalar(0.0, 0.0, 255.0, 0.0), CV_AA, 0)
+            fillConvexPoly(grabbedImage, hatPoints.position(0), 3,  AbstractScalar.GREEN, CV_AA, 0)
         }
         // Let's find some contours! but first some thresholding...
         threshold(grayImage, grayImage, 64, 255, CV_THRESH_BINARY)
