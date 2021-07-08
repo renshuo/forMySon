@@ -1,7 +1,5 @@
 import org.bytedeco.javacpp.indexer.FloatIndexer
-import org.bytedeco.javacv.CanvasFrame
-import org.bytedeco.javacv.OpenCVFrameConverter
-import org.bytedeco.javacv.FFmpegFrameGrabber
+import org.bytedeco.javacv._
 import org.bytedeco.opencv.opencv_core._
 import org.bytedeco.opencv.opencv_dnn._
 import org.bytedeco.opencv.opencv_imgproc._
@@ -15,7 +13,8 @@ import org.bytedeco.opencv.global.opencv_videoio._
 @main
 def FaceDnn(): Unit ={
   // input
-  val gra = new FFmpegFrameGrabber("/home/work/test.mp4")
+  //val gra = new FFmpegFrameGrabber("/home/work/test.mp4")
+  val gra = FrameGrabber.createDefault(0) //FFmpegFrameGrabber("/home/work/test.mp4")
   gra.start()
 
   //process
@@ -32,7 +31,7 @@ def FaceDnn(): Unit ={
   mainframe.setVisible(true)
 
   while(mainframe.isVisible) {
-    colorimg = converter.convert(gra.grabImage())
+    colorimg = converter.convert(gra.grab())
     resize(colorimg, colorimg, new Size(300, 300));
     //val blob = blobFromImage(colorimg)
     val blob = blobFromImage(colorimg, 1.0, new Size(300, 300), new Scalar(104.0, 177.0, 123.0, 0), false, false, CV_32F)
