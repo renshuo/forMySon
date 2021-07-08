@@ -28,6 +28,12 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % "test"
 /* javacv */
 libraryDependencies += "org.bytedeco" % "javacv-platform" % "1.5.5"
 
+/* pi4j */
+libraryDependencies += "com.pi4j" % "pi4j-core" % "1.4"
+libraryDependencies += "com.pi4j" % "pi4j-device" % "1.4"
+libraryDependencies += "com.pi4j" % "pi4j-gpio-extension" % "1.4"
+libraryDependencies += "com.pi4j" % "pi4j-service" % "1.4"
+
 // Fork a new JVM for 'run' and 'test:run', to avoid JavaFX double initialization problems
 fork := true
 
