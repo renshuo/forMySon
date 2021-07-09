@@ -16,9 +16,10 @@ object TestEcho {
     override def handleGpioPinDigitalStateChangeEvent(event: GpioPinDigitalStateChangeEvent): Unit = {
       if (event.getState == PinState.HIGH) {
         time = System.nanoTime()
+        println(s"get High rise event. ${time}")
       }else {
-        val curTime = System.nanoTime()
-        println(s"get echo resp $curTime - $time = ${(curTime-time)*0.034300/2}, ${event.getState}, ${event.getEdge}")
+        val curTime = System.nanoTime()  // 343 m/s => 34300 cm/s => 34.3 cm/ms
+        println(s"get echo resp $curTime - $time = ${(curTime-time).toDouble/1000000*34.3/2}, ${event.getState}, ${event.getEdge}")
       }
     }
   })
@@ -34,8 +35,7 @@ object TestEcho {
 @main
 def TestEchoMain = {
   while(true) {
-
     TestEcho.getDistance()
-    Thread.sleep(500)
+    Thread.sleep(1000)
   }
 }
