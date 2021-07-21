@@ -8,16 +8,18 @@ import org.bytedeco.opencv.global.opencv_core._
 import org.bytedeco.opencv.global.opencv_dnn._
 import org.bytedeco.opencv.global.opencv_imgproc._
 import org.bytedeco.opencv.global.opencv_videoio._
-
+import org.bytedeco.ffmpeg.global.avutil
+import org.bytedeco.javacv.{FFmpegFrameGrabber, FrameGrabber}
 
 @main
 def FaceDnn(cameraDev: String): Unit ={
   // input
   println("start")
-  //val gra = new FFmpegFrameGrabber("./test.mp4")
-  val gra = FrameGrabber.createDefault(cameraDev) //FFmpegFrameGrabber("/home/work/test.mp4")
+  avutil.av_log_set_level(avutil.AV_LOG_ERROR)
+  val url = "http://192.168.1.100:8081"
+  val gra = FFmpegFrameGrabber.createDefault(url)
   gra.start()
-  println("catched input")
+  println(s"catched input ")
 
   //process
   val net: Net = readNetFromCaffe("./deploy.prototxt", "./res10_300x300_ssd_iter_140000_fp16.caffemodel")
@@ -39,7 +41,7 @@ def FaceDnn(cameraDev: String): Unit ={
     count += 1
     colorimg = converter.convert(gra.grab())
 
-    if (count %10 == 0) {
+    if (count >0) {
       resize(colorimg, colorimg, new Size(300, 300));
       //val blob = blobFromImage(colorimg)
       val blob = blobFromImage(colorimg, 1.0, new Size(300, 300), new Scalar(104.0, 177.0, 123.0, 0), false, false, CV_32F)
@@ -60,7 +62,7 @@ def FaceDnn(cameraDev: String): Unit ={
           val ty: Float = f2 * 300; //top left point's y
           val bx: Float = f3 * 300; //bottom right point's x
           val by: Float = f4 * 300; //bottom right point's y
-          println(s"get face at: ${tx}, $ty, $bx, $by")
+          //println(s"get face at: ${tx}, $ty, $bx, $by")
           rectangle(colorimg, new Rect(new Point(tx.toInt, ty.toInt), new Point(bx.toInt, by.toInt)), new Scalar(255, 0, 0, 0)) //print blue rectangle
         }
 
