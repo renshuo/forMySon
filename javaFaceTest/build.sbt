@@ -9,17 +9,17 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-featu
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % Test
 
 /* add scalafx dep */
-//libraryDependencies += "org.scalafx" % "scalafx_3" % "16.0.0-R24"
-//libraryDependencies ++= {
-//  lazy val osName = System.getProperty("os.name") match {
-//    case n if n.startsWith("Linux") => "linux"
-//    case n if n.startsWith("Mac") => "mac"
-//    case n if n.startsWith("Windows") => "win"
-//    case _ => throw new Exception("Unknown platform!")
-//  }
-//  Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
-//    .map(m => "org.openjfx" % s"javafx-$m" % "16" classifier osName)
-//}
+libraryDependencies += "org.scalafx" % "scalafx_3" % "16.0.0-R24"
+libraryDependencies ++= {
+  lazy val osName = System.getProperty("os.name") match {
+    case n if n.startsWith("Linux") => "linux"
+    case n if n.startsWith("Mac") => "mac"
+    case n if n.startsWith("Windows") => "win"
+    case _ => throw new Exception("Unknown platform!")
+  }
+  Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
+    .map(m => "org.openjfx" % s"javafx-$m" % "16" classifier osName)
+}
 
 /* scalaTest */
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.9"
@@ -45,10 +45,14 @@ libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 
 libraryDependencies += "ai.djl" % "api" % "0.12.0"
 libraryDependencies += "ai.djl" % "model-zoo" % "0.12.0"
-libraryDependencies += "ai.djl.pytorch" % "pytorch-model-zoo" % "0.12.0"
 
+//libraryDependencies += "ai.djl.mxnet" % "mxnet-engine" % "0.12.0"
+//libraryDependencies += "ai.djl.mxnet" % "mxnet-model-zoo" % "0.12.0"
 //libraryDependencies += "ai.djl.mxnet" % "mxnet-native-auto" % "1.8.0"
-libraryDependencies += "ai.djl.pytorch" % "pytorch-native-auto" % "1.8.1"
+libraryDependencies += "ai.djl.pytorch" % "pytorch-engine" % "0.12.0"
+libraryDependencies += "ai.djl.pytorch" % "pytorch-model-zoo" % "0.12.0"
+//libraryDependencies += "ai.djl.pytorch" % "pytorch-native-auto" % "1.8.1"
+libraryDependencies += "ai.djl.pytorch" % "pytorch-native-cpu" % "1.8.1" classifier "linux-x86_64"
 //libraryDependencies += "ai.djl.tensorflow" % "tensorflow-native-auto" % "2.4.1"
 
 
