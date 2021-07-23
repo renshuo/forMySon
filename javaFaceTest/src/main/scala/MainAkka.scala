@@ -1,9 +1,6 @@
 
 import akka.actor.typed._
 import akka.actor.typed.scaladsl._
-import akka.cluster.ClusterEvent._
-import akka.cluster.MemberStatus
-import akka.cluster.typed._
 
 import org.bytedeco.javacpp.indexer.FloatIndexer
 import org.bytedeco.javacv._

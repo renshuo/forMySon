@@ -17,7 +17,9 @@ libraryDependencies ++= {
     case n if n.startsWith("Windows") => "win"
     case _ => throw new Exception("Unknown platform!")
   }
-  Seq("base", "controls", "fxml", "graphics", "media", "swing", "web")
+  Seq("base", "controls", "fxml", "graphics", "media", "swing"
+  //  , "web"
+  )
     .map(m => "org.openjfx" % s"javafx-$m" % "16" classifier osName)
 }
 
@@ -26,22 +28,23 @@ libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.9"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % "test"
 
 /* javacv */
+val javacvClassifier = "linux-x86_64"
 //libraryDependencies += "org.bytedeco" % "javacv-platform" % "1.5.5"
 libraryDependencies += "org.bytedeco" % "javacv" % "1.5.5"
-libraryDependencies += "org.bytedeco" % "artoolkitplus" % "2.3.1-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "ffmpeg" % "4.3.2-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "flandmark" % "1.07-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "flycapture" % "2.13.3.31-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "leptonica" % "1.80.0-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "libdc1394" % "2.2.6-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "libfreenect" % "0.5.7-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "librealsense2" % "2.40.0-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "librealsense" % "1.12.4-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "openblas" % "0.3.13-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "opencv" % "4.5.1-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "tesseract" % "4.1.1-1.5.5" classifier "linux-x86_64"
-libraryDependencies += "org.bytedeco" % "videoinput" % "0.200-1.5.5"
+//libraryDependencies += "org.bytedeco" % "artoolkitplus" % "2.3.1-1.5.5" classifier javacvClassifier
+libraryDependencies += "org.bytedeco" % "ffmpeg" % "4.3.2-1.5.5" classifier javacvClassifier
+//libraryDependencies += "org.bytedeco" % "flandmark" % "1.07-1.5.5" classifier javacvClassifier
+//libraryDependencies += "org.bytedeco" % "flycapture" % "2.13.3.31-1.5.5" classifier javacvClassifier
+libraryDependencies += "org.bytedeco" % "javacpp" % "1.5.5" classifier javacvClassifier
+//libraryDependencies += "org.bytedeco" % "leptonica" % "1.80.0-1.5.5" classifier javacvClassifier
+//libraryDependencies += "org.bytedeco" % "libdc1394" % "2.2.6-1.5.5" classifier javacvClassifier
+//libraryDependencies += "org.bytedeco" % "libfreenect" % "0.5.7-1.5.5" classifier javacvClassifier
+//libraryDependencies += "org.bytedeco" % "librealsense2" % "2.40.0-1.5.5" classifier javacvClassifier
+//libraryDependencies += "org.bytedeco" % "librealsense" % "1.12.4-1.5.5" classifier javacvClassifier
+libraryDependencies += "org.bytedeco" % "openblas" % "0.3.13-1.5.5" classifier javacvClassifier
+libraryDependencies += "org.bytedeco" % "opencv" % "4.5.1-1.5.5" classifier javacvClassifier
+//libraryDependencies += "org.bytedeco" % "tesseract" % "4.1.1-1.5.5" classifier javacvClassifier
+//libraryDependencies += "org.bytedeco" % "videoinput" % "0.200-1.5.5"
 
 /* pi4j */
 libraryDependencies += "com.pi4j" % "pi4j-core" % "1.4"
@@ -51,7 +54,7 @@ libraryDependencies += "com.pi4j" % "pi4j-core" % "1.4"
 
 /* akka */
 libraryDependencies += "com.typesafe.akka" % "akka-actor-typed_2.13" % "2.6.15"
-libraryDependencies += "com.typesafe.akka" % "akka-cluster-typed_2.13" % "2.6.15"
+// libraryDependencies += "com.typesafe.akka" % "akka-cluster-typed_2.13" % "2.6.15"
 
 /* log */
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
@@ -73,7 +76,7 @@ libraryDependencies += "ai.djl.pytorch" % "pytorch-native-cpu" % "1.8.1" classif
 
 fork := true
 
-mainClass := Some("sren.facetest.TestJavacv")
+mainClass := Some("akkaMain")
 
 assembly / assemblyMergeStrategy  := {
   case PathList("javafx", "module-info.class") => MergeStrategy.discard
@@ -84,9 +87,17 @@ assembly / assemblyMergeStrategy  := {
   case m if m.toLowerCase.contains("windows") => MergeStrategy.discard
   case m if m.toLowerCase.contains("ios") => MergeStrategy.discard
 
-  case m if m.toLowerCase.contains("x86") => MergeStrategy.discard
+  //case m if m.toLowerCase.contains("x86") => MergeStrategy.discard
   case m if m.toLowerCase.contains("ppc") => MergeStrategy.discard
   case m if m.toLowerCase.contains("arm64") => MergeStrategy.discard
+
+  /*
+   * fix error: No configuration setting found for key 'akka.loggers'
+   * see https://stackoverflow.com/questions/31011243/no-configuration-setting-found-for-key-akka-version
+   */
+  case "reference.conf" => MergeStrategy.concat
+
+  case m if m.toLowerCase.contains("torch") => MergeStrategy.discard
 
   case x => MergeStrategy.first
 }
