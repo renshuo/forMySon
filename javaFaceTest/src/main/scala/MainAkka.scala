@@ -20,8 +20,6 @@ import org.bytedeco.opencv.global.opencv_videoio._
 @main def akkaMain() = {
   val sys = ActorSystem(MonitorAct(), "camera")
   sys.tell("start")
-//  val cluster = Cluster(sys)
-//  cluster.manager.tell(cluster.selfMember.address)
 }
 
 object MonitorAct {
@@ -32,12 +30,14 @@ object MonitorAct {
 
 class MonitorAct(ctx: ActorContext[String]) extends AbstractBehavior[String](ctx) {
 
-  val frameAct = ctx.spawn(FrameAct(), "frame")
-  val camera = ctx.spawn(CameraAct(frameAct.ref), "camera")
+  val vshow: ActorRef[Frame] = ctx.spawn(VideoShow().show(), "vshow")
+  val faceDect: ActorRef[Mat] = ctx.spawn(FaceDnnActor(vshow).detect(), "detector")
+  val grabber = ctx.spawn(VideoGrabber(faceDect).grab(), "grabber")
 
   override def onMessage(msg: String): Behavior[String] = {
     ctx.log.info(s"$msg monitor")
-    camera.tell(CameraCommand.Start)
+    grabber.tell("http://192.168.0.242:8081")
     Behaviors.empty
   }
 }
+

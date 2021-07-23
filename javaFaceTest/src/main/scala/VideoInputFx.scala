@@ -25,7 +25,11 @@ import javax.imageio.ImageIO
 
 
 def readVideo(): MediaView = {
+
   val res = Paths.get("/home/work/test.mp4").toUri.toString
+
+  // val res = "http://192.168.0.242:8081"
+
   val media = new Media(res)
   val player = new MediaPlayer(media)
 
@@ -81,12 +85,11 @@ object VideoInputFx extends JFXApp3 {
             children = Seq(
               new Text { text = "abc"},
               new Button("snap") {
-                onAction =  (e: ActionEvent) => {
+                onAction =  {(e: ActionEvent) =>
                   println("btn1")
                   snapshot1(mv)
                 }
               }
-
             )
           }
           bottom = new HBox {
