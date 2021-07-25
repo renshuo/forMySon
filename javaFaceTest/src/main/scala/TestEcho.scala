@@ -7,8 +7,8 @@ import java.util.concurrent.{Callable, TimeUnit}
 object TestEcho {
   //val pi4j = Pi4J.newAutoContext()
   val gpio: GpioController  = GpioFactory.getInstance()
-  val trigger = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "", PinState.LOW)
-  val echo: GpioPinDigitalInput = gpio.provisionDigitalInputPin(RaspiPin.GPIO_00, "")
+  val trigger = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_04, "", PinState.LOW)
+  val echo: GpioPinDigitalInput = gpio.provisionDigitalInputPin(RaspiPin.GPIO_05, "")
 
 //  echo.addTrigger(new GpioCallbackTrigger( new Callable[Void] {
 //    override def call(): Void = {

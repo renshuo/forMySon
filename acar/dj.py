@@ -1,9 +1,10 @@
+#!/usr/bin/python3
 import RPi.GPIO as GPIO
 import time
 
 GPIO.setmode(GPIO.BCM)
 
-In_Pin=19
+In_Pin=23
 #GPIO.setup(Vcc_Pin,GPIO.OUT,initial=GPIO.HIGH)
 GPIO.setup(In_Pin,GPIO.OUT,initial=GPIO.LOW)
 p=GPIO.PWM(In_Pin,50)
@@ -22,7 +23,8 @@ try:
             continue
         print("set to ", r)
         p.ChangeDutyCycle(2.5+r/360*20)
-        time.sleep(0.02)
+        time.sleep(0.04)
+        p.ChangeDutyCycle(0)
         r=str(input(str1))
 except KeyboardInterrupt:
     pass
