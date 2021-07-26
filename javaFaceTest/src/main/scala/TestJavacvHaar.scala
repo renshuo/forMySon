@@ -16,7 +16,7 @@ import org.bytedeco.opencv.global.opencv_objdetect._
 import org.opencv.imgproc.Imgproc
 
 @main
-def FaceTest() = {
+def TestJavacvHaar() = {
 
   //System.setProperty("java.library.path", "/home/work/project/forMySon/javaFaceTest/.idea/libraries")
   // System.loadLibrary(Core.NATIVE_LIBRARY_NAME)

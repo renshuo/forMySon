@@ -1,10 +1,10 @@
+package rs.actor
+
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, Behavior}
-import org.bytedeco.javacv.{FFmpegFrameGrabber, FrameGrabber}
-import org.bytedeco.javacv._
-import org.bytedeco.opencv.opencv_core.Mat
-import org.bytedeco.javacv.OpenCVFrameConverter
 import org.bytedeco.ffmpeg.global.avutil
+import org.bytedeco.javacv.{FFmpegFrameGrabber, FrameGrabber, OpenCVFrameConverter}
+import org.bytedeco.opencv.opencv_core.Mat
 
 class VideoGrabber(detector: ActorRef[Mat]) {
 

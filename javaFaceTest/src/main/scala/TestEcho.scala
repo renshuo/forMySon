@@ -4,7 +4,7 @@ import com.pi4j.io.gpio.trigger.GpioCallbackTrigger
 
 import java.util.concurrent.{Callable, TimeUnit}
 
-object TestEcho {
+object TestEchoObj {
   //val pi4j = Pi4J.newAutoContext()
   val gpio: GpioController  = GpioFactory.getInstance()
   val trigger = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_04, "", PinState.LOW)
@@ -45,9 +45,9 @@ object TestEcho {
 }
 
 @main
-def TestEchoMain = {
+def TestEcho = {
   while(true) {
-    TestEcho.getDistance()
+    TestEchoObj.getDistance()
     Thread.sleep(400)
   }
 }

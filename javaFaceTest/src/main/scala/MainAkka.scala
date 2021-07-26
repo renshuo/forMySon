@@ -1,17 +1,13 @@
 
-import akka.actor.typed._
-import akka.actor.typed.scaladsl._
+import akka.actor.typed.{ActorSystem, ActorRef, Behavior}
+import akka.actor.typed.scaladsl.{ActorContext, AbstractBehavior, Behaviors}
 
 import org.bytedeco.javacpp.indexer.FloatIndexer
-import org.bytedeco.javacv._
-import org.bytedeco.opencv.opencv_core._
-import org.bytedeco.opencv.opencv_dnn._
-import org.bytedeco.opencv.opencv_imgproc._
-import org.bytedeco.opencv.opencv_videoio._
-import org.bytedeco.opencv.global.opencv_core._
-import org.bytedeco.opencv.global.opencv_dnn._
-import org.bytedeco.opencv.global.opencv_imgproc._
-import org.bytedeco.opencv.global.opencv_videoio._
+import org.bytedeco.javacv.{Frame}
+import org.bytedeco.opencv.opencv_core.{Mat}
+
+import rs.actor.{VideoGrabber, VideoShow}
+import rs.detector.{FaceDnnActor}
 
 
 @main def akkaMain() = {

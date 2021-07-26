@@ -24,6 +24,11 @@ import java.nio.file.{Files, Paths}
 import javax.imageio.ImageIO
 
 
+@main
+def TestFxVideo(): Unit = {
+  TestFxVideoApp.main(Array())
+}
+
 def readVideo(): MediaView = {
 
   val res = Paths.get("/home/work/test.mp4").toUri.toString
@@ -61,12 +66,10 @@ def snapshot1(view: MediaView):Unit = {
   ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", new File(s"/home/work/test${count}.png"))
 }
 
-object VideoInputFx extends JFXApp3 {
+object TestFxVideoApp extends JFXApp3 {
 //  val media = new Media("/home/work/test.mp4")
 //  val player = new MediaPlayer(media)
 //  val mview = new MediaView(player)
-
-
 
   override def start(): Unit = {
     stage = new JFXApp3.PrimaryStage {

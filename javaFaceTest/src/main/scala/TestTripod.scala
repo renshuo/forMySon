@@ -7,7 +7,7 @@ import com.pi4j.util.CommandArgumentParser
 import scala.io.StdIn
 
 @main
-def CameraHandle(): Unit = {
+def TestTripod(): Unit = {
   val gpio: GpioController  = GpioFactory.getInstance()
   val sv = gpio.provisionPwmOutputPin(RaspiPin.GPIO_23, 0)
   val sh = gpio.provisionPwmOutputPin(RaspiPin.GPIO_24, 0)

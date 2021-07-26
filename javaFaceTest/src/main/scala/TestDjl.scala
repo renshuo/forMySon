@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.stream.{Collectors, IntStream}
 
 @main
-def DJLTest(): Unit = {
+def TestDjl(): Unit = {
   val facePath = Paths.get("./largest_selfie.jpg")
   val img = ImageFactory.getInstance().fromFile(facePath)
 

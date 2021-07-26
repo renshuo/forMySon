@@ -1,9 +1,9 @@
+package rs.actor
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
+import org.bytedeco.javacv.{CanvasFrame, Frame}
 import org.bytedeco.opencv.opencv_core.Mat
-import org.bytedeco.javacv.Frame
-import org.bytedeco.javacv.CanvasFrame
 
 class VideoShow {
 

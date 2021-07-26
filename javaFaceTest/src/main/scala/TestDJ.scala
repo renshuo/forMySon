@@ -7,7 +7,7 @@ import scala.io.StdIn
 
 
 @main
-def TestDJMain(port: Int, sleepTime: Int= 40, clock: Int, range: Int) = {
+def TestDJ(port: Int, sleepTime: Int= 40, clock: Int, range: Int) = {
   val pin = RaspiPin.getPinByAddress(port)
   val gpio: GpioController  = GpioFactory.getInstance()
   println(s"get gpio controller: $gpio")
