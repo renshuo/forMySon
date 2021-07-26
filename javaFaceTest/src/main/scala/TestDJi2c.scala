@@ -10,10 +10,13 @@ def TestDJ2(): Unit = {
 
   val port = 0
   while(true) {
-    val degree = StdIn.readInt()
-    dev.setPwm(port, degreeToTime(degree.toFloat))
+    val degree = StdIn.readLine()
+    val vs = degree.split(",").map { _.toInt }
+    dev.setPwm(port, degreeToTime(vs(0).toFloat))
+    dev.setPwm(port+1, degreeToTime(vs(1).toFloat))
     Thread.sleep(40)
     dev.setPwm(port, 0)
+    dev.setPwm(port+1, 0)
   }
 }
 

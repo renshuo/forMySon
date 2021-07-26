@@ -76,7 +76,7 @@ libraryDependencies += "ai.djl.pytorch" % "pytorch-native-cpu" % "1.8.1" classif
 
 fork := true
 
-mainClass := Some("akkaMain")
+mainClass := Some("MainAkka")
 
 assembly / assemblyMergeStrategy  := {
   case PathList("javafx", "module-info.class") => MergeStrategy.discard
@@ -98,6 +98,7 @@ assembly / assemblyMergeStrategy  := {
   case "reference.conf" => MergeStrategy.concat
 
   case m if m.toLowerCase.contains("torch") => MergeStrategy.discard
+  //case m if m.toLowerCase.contains("bytedeco") => MergeStrategy.discard
 
   case x => MergeStrategy.first
 }

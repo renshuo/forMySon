@@ -11,7 +11,7 @@ import rs.detector._
 import rs.sensor._
 
 
-@main def akkaMain() = {
+@main def MainAkka() = {
   val sys = ActorSystem(MonitorAct(), "camera")
   sys.tell("start")
 }
@@ -28,12 +28,12 @@ class MonitorAct(ctx: ActorContext[String]) extends AbstractBehavior[String](ctx
   val faceDect: ActorRef[Mat] = ctx.spawn(FaceDnnActor(vshow).detect(), "detector")
   val grabber = ctx.spawn(VideoGrabber(faceDect).grab(), "grabber")
 
-  val car: ActorRef[CarCommand] = ctx.spawn(Car().ready(), "car")
-  val echo = ctx.spawn(SoundEcho(car).start(), "echo")
+//  val car: ActorRef[CarCommand] = ctx.spawn(Car().ready(), "car")
+//  val echo = ctx.spawn(SoundEcho(car).start(), "echo")
 
   override def onMessage(msg: String): Behavior[String] = {
     ctx.log.info(s"$msg monitor")
-    grabber.tell("http://192.168.0.242:8081")
+    grabber.tell("http://192.168.31.242:8081")
     Behaviors.empty
   }
 }
