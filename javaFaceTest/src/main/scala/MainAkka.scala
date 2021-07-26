@@ -6,8 +6,9 @@ import org.bytedeco.javacpp.indexer.FloatIndexer
 import org.bytedeco.javacv.{Frame}
 import org.bytedeco.opencv.opencv_core.{Mat}
 
-import rs.actor.{VideoGrabber, VideoShow}
-import rs.detector.{FaceDnnActor}
+import rs.actor._
+import rs.detector._
+import rs.sensor._
 
 
 @main def akkaMain() = {
@@ -26,6 +27,9 @@ class MonitorAct(ctx: ActorContext[String]) extends AbstractBehavior[String](ctx
   val vshow: ActorRef[Frame] = ctx.spawn(VideoShow().show(), "vshow")
   val faceDect: ActorRef[Mat] = ctx.spawn(FaceDnnActor(vshow).detect(), "detector")
   val grabber = ctx.spawn(VideoGrabber(faceDect).grab(), "grabber")
+
+  val car: ActorRef[CarCommand] = ctx.spawn(Car().ready(), "car")
+  val echo = ctx.spawn(SoundEcho(car).start(), "echo")
 
   override def onMessage(msg: String): Behavior[String] = {
     ctx.log.info(s"$msg monitor")
