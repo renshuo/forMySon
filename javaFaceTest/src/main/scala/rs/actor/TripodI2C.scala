@@ -13,7 +13,7 @@ class TripodI2C {
   val pitchingPort = 0
   val directionPort = 1
 
-  val dev = I2cDev(1, 0x40, 50)
+  val dev = I2cDev
 
   def degreeToTime(degree: Float): Float = 0.5f + degree/180 * 2
   def degreeToTime(degree: Double): Double = 0.5d + degree/180 * 2

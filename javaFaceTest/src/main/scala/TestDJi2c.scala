@@ -6,7 +6,7 @@ import rs.actor.I2cDev
 
 @main
 def TestDJ2(): Unit = {
-  val dev = I2cDev(1, 0x40, 50)
+  val dev = I2cDev
 
   val port = 0
   while(true) {

@@ -12,32 +12,32 @@ enum CarCommand {
   case Forward, Backward, TurnLeft, TurnRight, Stop, Test
 }
 
-class Wheel(p1: Pin, p2: Pin) {
+class Wheel(p1: Int, p2: Int) {
 
-  val fv = 50
-  val gpio: GpioController  = GpioFactory.getInstance()
-
-  val p1out: GpioPinPwmOutput = gpio.provisionSoftPwmOutputPin(p1)
-  val p2out: GpioPinPwmOutput = gpio.provisionSoftPwmOutputPin(p2)
+  val fv = 30
+  val i2c = I2cDev
 
   def forward = {
-    p1out.setPwm(fv); p2out.setPwm(0)
+    i2c.setPwmRate(p1, fv)
+    i2c.setPwmRate(p2, 0)
   }
 
   def backward = {
-    p1out.setPwm(0); p2out.setPwm(fv)
+    i2c.setPwmRate(p1, 0)
+    i2c.setPwmRate(p2, fv)
   }
 
   def stop = {
-    p1out.setPwm(0); p2out.setPwm(0)
+    i2c.setPwmRate(p1, 0)
+    i2c.setPwmRate(p2, 0)
   }
 }
 
 class Car {
-  val fl = new Wheel(RaspiPin.GPIO_07, RaspiPin.GPIO_00)
-  val fr = new Wheel(RaspiPin.GPIO_03, RaspiPin.GPIO_02)
-  val bl = new Wheel(RaspiPin.GPIO_25, RaspiPin.GPIO_29)
-  val br = new Wheel(RaspiPin.GPIO_27, RaspiPin.GPIO_28)
+  val fr = new Wheel(4, 5)
+  val br = new Wheel(6, 7)
+  val bl = new Wheel(8, 9)
+  val fl = new Wheel(10, 11)
 
 
   def forward = { fl.forward ; fr.forward; bl.forward; br.forward }
@@ -52,15 +52,19 @@ class Car {
 
   def test = {
     this.stop
+    println("start test front left wheel.")
     fl.forward
     StdIn.readLine()
     fl.stop
+    println("start test front right wheel.")
     fr.forward
     StdIn.readLine()
     fr.stop
+    println("start test back left wheel.")
     bl.forward
     StdIn.readLine()
     bl.stop
+    println("start test back right wheel.")
     br.forward
     StdIn.readLine()
     this.stop
