@@ -4,6 +4,9 @@ import com.pi4j.io.i2c.{I2CBus, I2CDevice, I2CFactory}
 
 object I2cDev {
 
+  val dev: I2CDevice = I2CFactory.getInstance(1).getDevice(0x40)
+  val freq = 50
+
   extension (b: Byte) {
     def &(n: Int): Byte = (b & n).toByte
     def |(n: Int): Byte = (b | n).toByte
@@ -14,10 +17,7 @@ object I2cDev {
     def write(addr: Int, value: Long): Unit = dev.write(addr, value.toByte)
   }
 
-  val i2c: I2CBus = I2CFactory.getInstance(1)
-  val dev: I2CDevice = i2c.getDevice(0x40)
-  val freq = 50
-  {
+  def init() = {
     val oldMode = dev.read(0)
     val newmode = (oldMode & 0x7f | 0x10) // RESTART=0, SLEEP=1
     dev.write(0, newmode) // go to sleep
@@ -29,6 +29,15 @@ object I2cDev {
     Thread.sleep(5)
     dev.write(0, oldMode | 0x80) // set RESTART bit to 1 to restart pwm channels
     println(s"finish init mode and set freq: ${freq}")
+  }
+
+  {
+    try{
+      init()
+    }catch {
+      case x : Exception => println(s"get error: ${x}")
+      case y => println(s"get erro: ${y}")
+    }
   }
 
   def setPwmRate(portNum: Int, rate: Double): Unit = {

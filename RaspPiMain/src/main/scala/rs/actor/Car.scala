@@ -16,21 +16,20 @@ enum CarCommand {
 class Wheel(p1: Int, p2: Int) {
 
   val fv = 30
-  val i2c = I2cDev
 
   def forward = {
-    i2c.setPwmRate(p1, fv)
-    i2c.setPwmRate(p2, 0)
+    I2cDev.setPwmRate(p1, fv)
+    I2cDev.setPwmRate(p2, 0)
   }
 
   def backward = {
-    i2c.setPwmRate(p1, 0)
-    i2c.setPwmRate(p2, fv)
+    I2cDev.setPwmRate(p1, 0)
+    I2cDev.setPwmRate(p2, fv)
   }
 
   def stop = {
-    i2c.setPwmRate(p1, 0)
-    i2c.setPwmRate(p2, 0)
+    I2cDev.setPwmRate(p1, 0)
+    I2cDev.setPwmRate(p2, 0)
   }
 }
 

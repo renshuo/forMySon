@@ -13,8 +13,6 @@ class TripodI2C {
   val pitchingPort = 0
   val directionPort = 1
 
-  val dev = I2cDev
-
   def degreeToTime(degree: Float): Float = 0.5f + degree/180 * 2
   def degreeToTime(degree: Double): Double = 0.5d + degree/180 * 2
 
@@ -25,19 +23,19 @@ class TripodI2C {
     if (pitchingNew < 0 || pitchingNew > 180) {
       ctx.log.warn(s"pitchingNew is $pitchingNew, ignore update ${msg.v}")
     } else {
-      dev.setPwm(pitchingPort, degreeToTime(pitchingNew))
+      I2cDev.setPwm(pitchingPort, degreeToTime(pitchingNew))
       pitchingDegree = pitchingNew
     }
 
     if (directionNew < 0 || directionNew > 180) {
       ctx.log.warn(s"directionNew is $directionNew, ignore update ${msg.h}")
     } else {
-      dev.setPwm(directionPort, degreeToTime(directionNew))
+      I2cDev.setPwm(directionPort, degreeToTime(directionNew))
       directionDegree = directionNew
     }
     Thread.sleep(40) //设定舵机在40ms内完成转向工作
-    dev.setPwm(pitchingPort, 0) // pwm清零可以避免pwm信号导致的舵机抖动问题
-    dev.setPwm(directionPort, 0)
+    I2cDev.setPwm(pitchingPort, 0) // pwm清零可以避免pwm信号导致的舵机抖动问题
+    I2cDev.setPwm(directionPort, 0)
     Behaviors.same
   }
 }
