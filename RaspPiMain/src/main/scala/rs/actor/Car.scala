@@ -7,6 +7,7 @@ import com.pi4j.io.gpio.event.{GpioPinDigitalStateChangeEvent, GpioPinListener, 
 import com.pi4j.io.gpio.trigger.GpioCallbackTrigger
 import com.pi4j.io.gpio.{GpioFactory, GpioController, RaspiPin, GpioPinPwmOutput, Pin}
 import scala.io.StdIn
+import rs.actor.I2cDev
 
 enum CarCommand {
   case Forward, Backward, TurnLeft, TurnRight, Stop, Test

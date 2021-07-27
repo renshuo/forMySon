@@ -46,12 +46,6 @@ libraryDependencies += "org.bytedeco" % "opencv" % "4.5.1-1.5.5" classifier java
 //libraryDependencies += "org.bytedeco" % "tesseract" % "4.1.1-1.5.5" classifier javacvClassifier
 //libraryDependencies += "org.bytedeco" % "videoinput" % "0.200-1.5.5"
 
-/* pi4j */
-libraryDependencies += "com.pi4j" % "pi4j-core" % "1.4"
-//libraryDependencies += "com.pi4j" % "pi4j-device" % "1.4"
-//libraryDependencies += "com.pi4j" % "pi4j-gpio-extension" % "1.4"
-//libraryDependencies += "com.pi4j" % "pi4j-service" % "1.4"
-
 /* akka */
 libraryDependencies += "com.typesafe.akka" % "akka-actor-typed_2.13" % "2.6.15"
 // libraryDependencies += "com.typesafe.akka" % "akka-cluster-typed_2.13" % "2.6.15"

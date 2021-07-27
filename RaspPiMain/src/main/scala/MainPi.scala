@@ -5,7 +5,7 @@ import rs.sensor._
 
 import scala.io.StdIn
 
-@main def MainPi(action: String = "start") = {
+@main def MainPi(action: String = "start1") = {
   val sys = ActorSystem(MainPiActor(), "Pi")
   sys.tell(action)
 }
@@ -40,7 +40,7 @@ class MainPiActor(ctx: ActorContext[String]) extends AbstractBehavior[String](ct
     Behaviors.same
   }, "echoHandler")
 
-  val echo: ActorRef[String] = ctx.spawn(SoundEcho(echoHandler).ready(), "echo")
+  val echo: ActorRef[String] = ctx.spawn(new SoundEcho(echoHandler).ready(), "echo")
 
   val controller = ctx.spawn( Behaviors.receiveMessage[String] { msg =>
     println("start controller")
