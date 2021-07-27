@@ -3,7 +3,7 @@ version := "0.1"
 
 scalaVersion := "3.0.0"
 
-scalacOptions ++= Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-feature")
+scalacOptions ++= Seq("-unchecked","-encoding", "utf8", "-feature")
 
 /* scalaTest */
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.9"
@@ -17,7 +17,8 @@ libraryDependencies += "com.pi4j" % "pi4j-core" % "1.4"
 
 /* akka */
 libraryDependencies += "com.typesafe.akka" % "akka-actor-typed_2.13" % "2.6.15"
-// libraryDependencies += "com.typesafe.akka" % "akka-cluster-typed_2.13" % "2.6.15"
+libraryDependencies += "com.typesafe.akka" % "akka-stream_2.13" % "2.6.15"
+libraryDependencies += "com.typesafe.akka" % "akka-http_2.13" % "10.2.5-M2"
 
 /* log */
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
