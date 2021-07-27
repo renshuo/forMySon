@@ -18,7 +18,7 @@ object I2cDev {
   }
 
   def init() = {
-    val oldMode = dev.read(0)
+    val oldMode = 0
     val newmode = (oldMode & 0x7f | 0x10) // RESTART=0, SLEEP=1
     dev.write(0, newmode) // go to sleep
 
