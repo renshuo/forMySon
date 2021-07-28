@@ -8,12 +8,11 @@ import scala.concurrent.duration.FiniteDuration
 import rs.dev.{GpioDevDigitalIn, GpioDevDigitalOut}
 
 object SoundEcho {
-  def apply(): Behavior[Double] = {
+  def apply(distanceHandler: ActorRef[Double]): Behavior[String] = {
     Behaviors.setup(context =>
       Behaviors.withTimers { timers =>
-        timers.startTimerWithFixedDelay("check", 1.0, FiniteDuration(1, TimeUnit.SECONDS))
-
-        Behaviors.same
+        timers.startTimerWithFixedDelay("ss", FiniteDuration(1, TimeUnit.SECONDS))
+        new SoundEcho(distanceHandler).ready()
       }
     )
   }
@@ -35,7 +34,6 @@ class SoundEcho(distanceHandler: ActorRef[Double]) {
     val timeElasped = (endTime-startTime).toDouble/1000000
     val distance = timeElasped* 34.3 /2
     distanceHandler.tell(distance)
-
     Behaviors.same
   }
 }
