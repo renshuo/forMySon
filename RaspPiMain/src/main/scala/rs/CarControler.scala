@@ -16,11 +16,11 @@ object CarControler {
 class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](ctx)  {
 
   val car: ActorRef[CarCommand] = ctx.spawn(Car().ready(), "car")
-  val tripod: ActorRef[TripodUpdate] = ctx.spawn(TripodI2C().ready(), "tripod")
+  val tripod: ActorRef[TripodCommand] = ctx.spawn(TripodI2C().ready(), "tripod")
 
   val echoController = ctx.spawn(EchoController(car), "echoHandler")
-
   val cmdLineController = ctx.spawn(CmdLineController(car).start(), "controller")
+  val webController = ctx.spawn(WebController(car, tripod), "webCtrl")
 
   override def onMessage(msg: String): Behavior[String] = {
     msg match {
@@ -30,6 +30,7 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
         ctx.log.info("start Pi")
         cmdLineController.tell("start")
         echoController.tell("start")
+        webController.tell("start")
       }
     }
     Behaviors.same
