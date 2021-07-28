@@ -1,10 +1,9 @@
 package rs.controller
 
-import akka.actor.typed.scaladsl.{ActorContext, AbstractBehavior, Behaviors}
-import akka.actor.typed.{ActorRef, Behavior}
-import rs.actor._
-import rs.sensor._
-
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import akka.actor.typed.{ActorRef, Behavior, DispatcherSelector}
+import rs.actor.*
+import rs.sensor.*
 import org.slf4j.{Logger, LoggerFactory}
 
 object EchoController {
@@ -21,7 +20,7 @@ class EchoController(context: ActorContext[String], car: ActorRef[CarCommand]) e
   
 
   val handler = context.spawn( Behaviors.receiveMessage[Double] { distance =>
-    println(s"get distance : ${distance}")
+    context.log.debug(s"get distance : ${distance}")
     if (distance < 15) {
       car.tell(Stop())
       Thread.sleep(200)
@@ -38,10 +37,11 @@ class EchoController(context: ActorContext[String], car: ActorRef[CarCommand]) e
     Behaviors.same
   }, "handler")
 
-  val echo: ActorRef[String] = context.spawn(SoundEcho(handler), "echo")
+  val echo: ActorRef[String] = context.spawn(SoundEcho(handler), "echo" )
 
   override def onMessage(msg: String): Behavior[String] = {
     context.log.info("start echo controller.")
+    echo.tell("start")
     Behaviors.same
   }
 }

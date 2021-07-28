@@ -34,7 +34,7 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
       case _ => {
         ctx.log.info("start Pi")
         cmdLineController.tell("start")
-        //echoController.tell("start")
+        echoController.tell("start")
         webController.tell("start")
       }
     }
