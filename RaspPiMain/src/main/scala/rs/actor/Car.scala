@@ -9,27 +9,38 @@ import com.pi4j.io.gpio.{GpioFactory, GpioController, RaspiPin, GpioPinPwmOutput
 import scala.io.StdIn
 import rs.actor.I2cDev
 
+sealed trait CarCommand1
+case class Forward(velocity: Double) extends CarCommand1
+case class Backward(velocity: Double) extends CarCommand1
+case class TurnLeft(velocity: Double) extends CarCommand1
+case class TurnRight(velocity: Double) extends CarCommand1
+case class Stop() extends CarCommand1
+case class Test() extends CarCommand1
+
 enum CarCommand {
   case Forward, Backward, TurnLeft, TurnRight, Stop, Test
 }
 
 class Wheel(p1: Int, p2: Int) {
 
-  val fv = 30
-
-  def forward = {
-    I2cDev.setPwmRate(p1, fv)
+  def forward(velocity: Double) = {
+    I2cDev.setPwmRate(p1, velocity)
     I2cDev.setPwmRate(p2, 0)
   }
 
-  def backward = {
+  def backward(velocity: Double) = {
     I2cDev.setPwmRate(p1, 0)
-    I2cDev.setPwmRate(p2, fv)
+    I2cDev.setPwmRate(p2, velocity)
   }
 
   def stop = {
     I2cDev.setPwmRate(p1, 0)
     I2cDev.setPwmRate(p2, 0)
+  }
+
+  def hold = {
+    I2cDev.setPwmRate(p1, 20)
+    I2cDev.setPwmRate(p2, 20)
   }
 }
 
@@ -40,44 +51,36 @@ class Car {
   val fl = new Wheel(10, 11)
 
 
-  def forward = { fl.forward ; fr.forward; bl.forward; br.forward }
+  def forward(velocity: Double) = { Array(fl, fr, bl, br).map( _.forward(velocity)) }
 
-  def turnLeft = { fl.stop; bl.stop; fr.forward; br.forward}
+  def turnLeft(velocity: Double) = { fl.stop; bl.stop; fr.forward(velocity); br.forward(velocity)}
 
-  def turnRight = { fl.forward; bl.forward; fr.stop; br.stop }
+  def turnRight(velocity: Double) = { fl.forward(velocity); bl.forward(velocity); fr.stop; br.stop }
 
-  def backward = { fl.backward; fr.backward; bl.backward; br.backward }
+  def backward(velocity: Double) = { Array(fl, fr, bl, br).map(_.backward(velocity)) }
 
-  def stop = { fl.stop; bl.stop; fr.stop; br.stop}
+  def stop = { Array(fl, fr, bl, br).map(_.stop) }
 
   def test = {
     this.stop
-    println("start test front left wheel.")
-    fl.forward
-    StdIn.readLine()
-    fl.stop
-    println("start test front right wheel.")
-    fr.forward
-    StdIn.readLine()
-    fr.stop
-    println("start test back left wheel.")
-    bl.forward
-    StdIn.readLine()
-    bl.stop
-    println("start test back right wheel.")
-    br.forward
-    StdIn.readLine()
+    println("start test wheels.")
+    val velocity = 30
+    Array(fl, fr, bl, br).map { w =>
+      w.forward(velocity)
+      StdIn.readLine()
+      w.stop
+    }
     this.stop
   }
 
-  def ready(): Behavior[CarCommand] = Behaviors.receive { (ctx, msg:CarCommand) =>
+  def ready(): Behavior[CarCommand1] = Behaviors.receive { (ctx, msg:CarCommand1) =>
     msg match {
-      case CarCommand.Forward => forward
-      case CarCommand.Backward => backward
-      case CarCommand.TurnRight => turnRight
-      case CarCommand.TurnLeft => turnLeft
-      case CarCommand.Stop => stop
-      case CarCommand.Test => test
+      case Forward(velocity) => forward(velocity)
+      case Backward(velocity) => backward(velocity)
+      case TurnLeft(velocity) => turnLeft(velocity)
+      case TurnRight(velocity) => turnRight(velocity)
+      case x: Stop => stop
+      case x: Test => test
     }
     Behaviors.same
   }
