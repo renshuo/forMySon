@@ -5,8 +5,7 @@ import akka.actor.typed.scaladsl.Behaviors
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
-
-import rs.actor.{GpioDevDigitalIn, GpioDevDigitalOut}
+import rs.dev.{GpioDevDigitalIn, GpioDevDigitalOut}
 
 object SoundEcho {
   def apply(): Behavior[Double] = {

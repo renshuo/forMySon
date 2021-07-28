@@ -1,8 +1,8 @@
 
 import com.pi4j.io.i2c.{I2CBus, I2CDevice, I2CFactory}
+import rs.dev.I2cDev
 
 import scala.io.StdIn
-import rs.actor.I2cDev
 
 @main
 def TestDJ2(): Unit = {

@@ -2,7 +2,7 @@ package rs.actor
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import com.pi4j.io.i2c.{I2CBus, I2CDevice, I2CFactory}
+import rs.dev.I2cDev
 
 class TripodI2C {
 
@@ -11,8 +11,6 @@ class TripodI2C {
 
   val pitchingPort = 0
   val directionPort = 1
-
-  def degreeToTime(degree: Double): Double = 0.5d + degree/180 * 2
 
   /**
    * 0 -- 180 degree -> 0.5ms -- 2.5ms /20ms -> 2.5 -- 12.5 rate

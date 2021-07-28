@@ -2,12 +2,9 @@ package rs.actor
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
+import rs.dev.I2cDev
 
-import com.pi4j.io.gpio.event.{GpioPinDigitalStateChangeEvent, GpioPinListener, GpioPinListenerDigital}
-import com.pi4j.io.gpio.trigger.GpioCallbackTrigger
-import com.pi4j.io.gpio.{GpioFactory, GpioController, RaspiPin, GpioPinPwmOutput, Pin}
 import scala.io.StdIn
-import rs.actor.I2cDev
 
 class Wheel(p1: Int, p2: Int) {
 

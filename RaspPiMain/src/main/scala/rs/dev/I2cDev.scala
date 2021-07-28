@@ -1,4 +1,4 @@
-package rs.actor
+package rs.dev
 
 import com.pi4j.io.i2c.{I2CBus, I2CDevice, I2CFactory}
 

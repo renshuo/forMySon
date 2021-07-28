@@ -2,10 +2,9 @@ package rs.actor
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
+import rs.dev.GpioDevPwm
 
-import rs.actor.GpioDevPwm
-
-class Tripod {
+class TripodPwm {
 
   val pitch = GpioDevPwm(23)
   val direct = GpioDevPwm(24)

@@ -1,7 +1,7 @@
-package rs.actor
+package rs.dev
 
+import com.pi4j.io.gpio._
 import com.pi4j.io.gpio.event.{GpioPinDigitalStateChangeEvent, GpioPinListener, GpioPinListenerDigital}
-import com.pi4j.io.gpio.{GpioFactory, GpioController, RaspiPin, GpioPinPwmOutput, Pin, PinState}
 
 class GpioDev {
 

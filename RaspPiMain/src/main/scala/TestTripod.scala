@@ -1,7 +1,7 @@
 
 import akka.actor.typed.{ActorSystem, ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
-import rs.actor.Tripod
+import rs.actor.TripodPwm
 import rs.actor.TripodInfo
 import scala.io.StdIn
 
@@ -11,7 +11,7 @@ import com.pi4j.io.gpio.{GpioFactory}
 @main
 def TestTripod(): Unit = {
 
-  val sys = ActorSystem(Tripod().directDo(), "camera")
+  val sys = ActorSystem(TripodPwm().directDo(), "camera")
   try{
     while (true) {
       print("input degree: ")
