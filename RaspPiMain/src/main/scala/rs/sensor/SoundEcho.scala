@@ -2,12 +2,11 @@ package rs.sensor
 
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
-import com.pi4j.io.gpio.event.{GpioPinDigitalStateChangeEvent, GpioPinListener, GpioPinListenerDigital}
-import com.pi4j.io.gpio.trigger.GpioCallbackTrigger
-import com.pi4j.io.gpio.{GpioController, GpioFactory, GpioPinDigitalInput, PinState, RaspiPin}
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
+
+import rs.actor.{GpioDevDigitalIn, GpioDevDigitalOut}
 
 object SoundEcho {
   def apply(): Behavior[Double] = {
@@ -22,19 +21,18 @@ object SoundEcho {
 }
 class SoundEcho(distanceHandler: ActorRef[Double]) {
 
-  val gpio: GpioController  = GpioFactory.getInstance()
-  val trigger = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_07, "", PinState.LOW)
-  val echo: GpioPinDigitalInput = gpio.provisionDigitalInputPin(RaspiPin.GPIO_00, "")
+  val dev: GpioDevDigitalOut = GpioDevDigitalOut(7)
+  val dev2: GpioDevDigitalIn = GpioDevDigitalIn(0)
 
   def ready(): Behavior[String] = Behaviors.receive { (ctx, msg) =>
     ctx.log.debug(s"get $msg ")
-    trigger.high()
+    dev.high
     Thread.sleep(0, 10000)
-    trigger.low()
+    dev.low
     var startTime = 0L
     var endTime = 0L
-    while (echo.getState == PinState.LOW) startTime = System.nanoTime()
-    while (echo.getState == PinState.HIGH) endTime = System.nanoTime()
+    while (dev2.isLow) startTime = System.nanoTime()
+    while (dev2.isHigh) endTime = System.nanoTime()
     val timeElasped = (endTime-startTime).toDouble/1000000
     val distance = timeElasped* 34.3 /2
     distanceHandler.tell(distance)
