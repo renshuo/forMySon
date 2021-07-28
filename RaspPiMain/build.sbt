@@ -1,7 +1,7 @@
 name := "RaspPiMain"
 version := "0.1"
 
-scalaVersion := "3.0.0"
+scalaVersion := "3.0.1"
 
 scalacOptions ++= Seq("-unchecked","-encoding", "utf8", "-feature")
 
