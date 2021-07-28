@@ -6,8 +6,7 @@ import akka.actor.typed.scaladsl.Behaviors
 import com.pi4j.io.gpio.event.{GpioPinDigitalStateChangeEvent, GpioPinListener, GpioPinListenerDigital}
 import com.pi4j.io.gpio.{GpioFactory, GpioController, RaspiPin, GpioPinPwmOutput, Pin}
 
-case class TripodUpdate(v: Double, h: Double)
-case class TripodInfo(pitching: Double, direction: Double)
+
 
 class Tripod {
 
