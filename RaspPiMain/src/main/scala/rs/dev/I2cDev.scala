@@ -4,7 +4,12 @@ import com.pi4j.io.i2c.{I2CBus, I2CDevice, I2CFactory}
 
 object I2cDev {
 
-  val dev: I2CDevice = I2CFactory.getInstance(1).getDevice(0x40)
+  val dev: I2CDevice = try{
+    I2CFactory.getInstance(1).getDevice(0x40)
+  }catch {
+    case any => println(any)
+    null
+  }
   val freq = 50
 
   extension (b: Byte) {

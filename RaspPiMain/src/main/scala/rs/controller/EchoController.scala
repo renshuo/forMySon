@@ -17,11 +17,6 @@ class EchoController(context: ActorContext[String], car: ActorRef[CarCommand]) e
 
 
   val handler = context.spawn( Behaviors.receiveMessage[Double] { distance =>
-    handleDistance(distance)
-    Behaviors.same
-  }, "handler")
-
-  def handleDistance(distance: Double): Unit = {
     println(s"get distance : ${distance}")
     if (distance < 15) {
       car.tell(Stop())
@@ -36,13 +31,13 @@ class EchoController(context: ActorContext[String], car: ActorRef[CarCommand]) e
       Thread.sleep(200)
       car.tell(Forward(40))
     }
-    Thread.sleep(500)
-  }
+    Behaviors.same
+  }, "handler")
 
   val echo: ActorRef[String] = context.spawn(SoundEcho(handler), "echo")
 
   override def onMessage(msg: String): Behavior[String] = {
-
+    context.log.info("start echo controller.")
     Behaviors.same
   }
 }

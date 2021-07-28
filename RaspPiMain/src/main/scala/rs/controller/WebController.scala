@@ -20,7 +20,7 @@ object WebController {
 class WebController(context: ActorContext[String], car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) extends AbstractBehavior[String](context) {
 
   override def onMessage(msg: String): Behavior[String] = {
-
+    context.log.info("start web controller.")
     val router = path("test") {
       concat(
         get {
