@@ -17,7 +17,7 @@ object MainPiActor {
 }
 class MainPiActor(ctx: ActorContext[String]) extends AbstractBehavior[String](ctx)  {
 
-  val car: ActorRef[CarCommand1] = ctx.spawn(Car().ready(), "car")
+  val car: ActorRef[CarCommand] = ctx.spawn(Car().ready(), "car")
   val tripod: ActorRef[TripodUpdate] = ctx.spawn(TripodI2C().ready(), "tripod")
 
   val echoHandler = ctx.spawn(Behaviors.receiveMessage[Double] { distance =>

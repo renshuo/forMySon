@@ -5,7 +5,6 @@ import akka.actor.typed.scaladsl.Behaviors
 import com.pi4j.io.gpio.event.{GpioPinDigitalStateChangeEvent, GpioPinListener, GpioPinListenerDigital}
 import com.pi4j.io.gpio.trigger.GpioCallbackTrigger
 import com.pi4j.io.gpio.{GpioController, GpioFactory, GpioPinDigitalInput, PinState, RaspiPin}
-import rs.actor.CarCommand
 
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration

@@ -9,18 +9,6 @@ import com.pi4j.io.gpio.{GpioFactory, GpioController, RaspiPin, GpioPinPwmOutput
 import scala.io.StdIn
 import rs.actor.I2cDev
 
-sealed trait CarCommand1
-case class Forward(velocity: Double) extends CarCommand1
-case class Backward(velocity: Double) extends CarCommand1
-case class TurnLeft(velocity: Double) extends CarCommand1
-case class TurnRight(velocity: Double) extends CarCommand1
-case class Stop() extends CarCommand1
-case class Test() extends CarCommand1
-
-enum CarCommand {
-  case Forward, Backward, TurnLeft, TurnRight, Stop, Test
-}
-
 class Wheel(p1: Int, p2: Int) {
 
   def forward(velocity: Double) = {
@@ -73,7 +61,7 @@ class Car {
     this.stop
   }
 
-  def ready(): Behavior[CarCommand1] = Behaviors.receive { (ctx, msg:CarCommand1) =>
+  def ready(): Behavior[CarCommand] = Behaviors.receive { (ctx, msg:CarCommand) =>
     msg match {
       case Forward(velocity) => forward(velocity)
       case Backward(velocity) => backward(velocity)
