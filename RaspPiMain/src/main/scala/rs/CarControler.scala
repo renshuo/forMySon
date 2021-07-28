@@ -7,9 +7,14 @@ import rs.controller._
 import rs.sensor._
 
 import scala.io.StdIn
+import org.slf4j.{Logger, LoggerFactory}
 
 object CarControler {
+
+  val log: Logger = LoggerFactory.getLogger(getClass)
+
   def apply(): Behavior[String]= {
+    log.info("start car controller")
     Behaviors.setup[String](ctx => new CarControler(ctx))
   }
 }
@@ -29,7 +34,7 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
       case _ => {
         ctx.log.info("start Pi")
         cmdLineController.tell("start")
-        echoController.tell("start")
+        //echoController.tell("start")
         webController.tell("start")
       }
     }

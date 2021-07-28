@@ -3,12 +3,17 @@ package rs.dev
 import com.pi4j.io.gpio._
 import com.pi4j.io.gpio.event.{GpioPinDigitalStateChangeEvent, GpioPinListener, GpioPinListenerDigital}
 
+import org.slf4j.{Logger, LoggerFactory}
+
 class GpioDev {
 
+  val log: Logger = LoggerFactory.getLogger(getClass)
 
   val gpio: GpioController = try{
+    log.debug("start init gpio device")
     val gpio = GpioFactory.getInstance()
-    com.pi4j.wiringpi.Gpio.pwmSetMode(com.pi4j.wiringpi.Gpio.PWM_MODE_MS)
+    log.debug(s"set gpio mode to ${com.pi4j.wiringpi.Gpio.PWM_MODE_MS}")
+    // com.pi4j.wiringpi.Gpio.pwmSetMode(com.pi4j.wiringpi.Gpio.PWM_MODE_MS) // make Pi hang ??
     /**
      * PI的PWM频率计算方法：
      * pi的PWM频率是 19.2MHz 即 19200_000
@@ -16,6 +21,8 @@ class GpioDev {
      * 假设要做50Hz的PWM, rate = 50, Range是setPwm的取值范围，假设取 1-1000
      * 则 clockDiver = 19200_000 / 1000 / 50 = 384
      */
+    Thread.sleep(2000)
+    log.debug(s"set pwm range and clock")
     com.pi4j.wiringpi.Gpio.pwmSetRange(1000)
     com.pi4j.wiringpi.Gpio.pwmSetClock(384)
     gpio
