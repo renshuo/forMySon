@@ -12,11 +12,11 @@ def TestDJ2(): Unit = {
   while(true) {
     val degree = StdIn.readLine()
     val vs = degree.split(",").map { _.toInt }
-    dev.setPwm(port, degreeToTime(vs(0).toFloat))
-    dev.setPwm(port+1, degreeToTime(vs(1).toFloat))
+    dev.setPwmRate(port, degreeToRate(vs(0).toDouble))
+    dev.setPwmRate(port+1, degreeToRate(vs(1).toDouble))
     Thread.sleep(40)
-    dev.setPwm(port, 0)
-    dev.setPwm(port+1, 0)
+    dev.setPwmRate(port, 0)
+    dev.setPwmRate(port+1, 0)
   }
 }
 
@@ -24,7 +24,7 @@ def TestDJ2(): Unit = {
 /**
  * 舵机： 50Hz -> 20ms
  *
- * 0.5ms ~ 2.5ms
+ * 0.5ms ~ 2.5ms -> 2.5 ~ 12.5 %
  */
-def degreeToTime(degree: Float): Float = 0.5f + degree/180 * 2
+def degreeToRate(degree: Double): Double = 2.5 + degree /180 *10
 

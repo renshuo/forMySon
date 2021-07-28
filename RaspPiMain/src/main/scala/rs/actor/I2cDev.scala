@@ -45,11 +45,7 @@ object I2cDev {
     setPwm0(portNum, offStamp)
   }
 
-  def setPwm(portNum: Int, offTime: Double): Unit = {
-    setPwm(portNum, offTime.toFloat)
-  }
-
-  def setPwm(portNum: Int, offTime: Float): Unit = {
+  def setPwmOffTime(portNum: Int, offTime: Double): Unit = {
     val offStamp = (offTime / 20 * 4096).round.toInt
     setPwm0(portNum, offStamp)
   }
