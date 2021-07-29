@@ -19,8 +19,8 @@ object EchoController {
 class EchoController(context: ActorContext[String], car: ActorRef[CarCommand]) extends AbstractBehavior[String](context) {
   
 
-  val handler = context.spawn( Behaviors.receiveMessage[Double] { distance =>
-    context.log.debug(s"get distance : ${distance}")
+  val handler = context.spawn( Behaviors.receive[Double] { (ctx, distance) =>
+    ctx.log.debug(s"get distance : ${distance}")
     if (distance < 15) {
       car.tell(Stop())
       Thread.sleep(200)
@@ -41,7 +41,6 @@ class EchoController(context: ActorContext[String], car: ActorRef[CarCommand]) e
 
   override def onMessage(msg: String): Behavior[String] = {
     context.log.info("start echo controller.")
-    echo.tell("start")
     Behaviors.same
   }
 }

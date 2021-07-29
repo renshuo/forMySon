@@ -3,29 +3,27 @@ package rs.sensor
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.Behaviors
 
-import java.util.concurrent.TimeUnit
-import scala.concurrent.duration.FiniteDuration
+import java.time.Duration
 import rs.dev.{GpioDevDigitalIn, GpioDevDigitalOut}
-
-import scala.concurrent.{ExecutionContext, Future}
-import org.slf4j.{Logger, LoggerFactory}
+import com.typesafe.scalalogging.Logger
 
 object SoundEcho {
 
-  val log: Logger = LoggerFactory.getLogger(getClass)
+  val logger = Logger(getClass)
 
   def apply(distanceHandler: ActorRef[Double]): Behavior[String] = {
     Behaviors.setup(context =>
-      //Behaviors.withTimers { timers =>
-        //timers.startTimerWithFixedDelay("ss", FiniteDuration(1, TimeUnit.SECONDS))
+      Behaviors.withTimers { timer =>
+        import scala.concurrent.duration.{FiniteDuration, SECONDS}
+        timer.startTimerWithFixedDelay("check distance", FiniteDuration(1, SECONDS))
         new SoundEcho(distanceHandler).ready()
-      //}
+      }
     )
   }
 }
 class SoundEcho(distanceHandler: ActorRef[Double]) {
 
-  val log: Logger = LoggerFactory.getLogger(getClass)
+  val logger = Logger(getClass)
 
   val (dev:GpioDevDigitalOut, dev2: GpioDevDigitalIn) = {
     try{
@@ -37,24 +35,21 @@ class SoundEcho(distanceHandler: ActorRef[Double]) {
   }
 
   def ready(): Behavior[String] = Behaviors.receive[String] { (ctx, msg) =>
-    println("in echo future")
-    while (true){
-      dev.high
-      Thread.sleep(0, 10000)
-      dev.low
-      var startTime = System.nanoTime()
-      var endTime = System.nanoTime() + 1000000
-      while (dev2.isLow && startTime < endTime) {
-        startTime = System.nanoTime()
-      }
-      while (dev2.isHigh && startTime < endTime) {
-        endTime = System.nanoTime()
-      }
-      val timeElasped = (endTime - startTime).toDouble / 1000000
-      val distance = timeElasped * 34.3 / 2
-      distanceHandler.tell(distance)
-      Thread.sleep(500)
+    dev.high
+    Thread.sleep(0, 10000)
+    dev.low
+    var startTime = System.nanoTime()
+    var endTime = System.nanoTime() + 1000000
+    while (dev2.isLow && startTime < endTime) {
+      startTime = System.nanoTime()
     }
+    while (dev2.isHigh && startTime < endTime) {
+      endTime = System.nanoTime()
+    }
+    val timeElasped = (endTime - startTime).toDouble / 1000000
+    val distance = timeElasped * 34.3 / 2
+    distanceHandler.tell(distance)
+
     Behaviors.same
   }
 }
