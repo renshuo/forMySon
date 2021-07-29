@@ -8,7 +8,6 @@ import org.bytedeco.opencv.opencv_core.{Mat}
 
 import rs.actor._
 import rs.detector._
-import rs.sensor._
 
 
 @main def MainAkka() = {
