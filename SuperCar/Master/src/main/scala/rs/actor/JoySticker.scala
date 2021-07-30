@@ -9,7 +9,7 @@ import com.typesafe.scalalogging.Logger
 
 import java.io.{File, FileInputStream}
 import java.nio.file.Paths
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 sealed trait JoyCommand
 case class JoyBtnEvent(btnNum: Int, isDown: Boolean) extends JoyCommand
@@ -25,20 +25,24 @@ class JoySticker(ctx: ActorContext[ActorRef[JoyCommand]]) {
 
   val log = Logger(getClass)
 
-  val fs = Paths.get("/dev/input/js0")
-  val s: Source[ByteString, Future[IOResult]] = FileIO.fromPath(fs)
+  val f:File = File("/dev/input/js0")
+  val os = new FileInputStream(f)
 
   extension (b: Byte) {
     def unsign(bit: Int): Long = (b & 0xff).toLong << bit
   }
 
   def start():Behavior[ActorRef[JoyCommand]] = Behaviors.receiveMessage { (joyEventHandler: ActorRef[JoyCommand]) =>
-    // should use akka stream to read event from js0
+    /**
+     * 如果使用akka stream, 底层nio在读取文件前会执行seek操作，但是 js0 是不支持seek的
+     */
+    println("start joy")
     given system: ActorSystem[Nothing] = ctx.system
+    given ec : ExecutionContext = ctx.executionContext
 
-    s.map { (data: ByteString) =>
-      data.grouped(8).map { ev0 =>
-        val ev = ev0.toArray
+    Future {
+      while(true) {
+        val ev = os.readNBytes(8)
         val timeStamp = ev(0).unsign(0) + ev(1).unsign(8) + ev(2).unsign(16) + ev(3).unsign(24)
         val value = ev(4).toLong + ev(5).toLong << 8
         val type1 = ev(6).unsign(0)
@@ -57,7 +61,7 @@ class JoySticker(ctx: ActorContext[ActorRef[JoyCommand]]) {
           case _ => printf(s"time: %d.%3d  $value $type1 $num \n", timeStamp/1000, timeStamp%1000)
         }
       }
-    }.run()
+    }
     Behaviors.same
   }
 }
