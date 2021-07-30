@@ -19,7 +19,11 @@ libraryDependencies += "com.pi4j" % "pi4j-core" % "1.4"
 libraryDependencies += "com.typesafe.akka" % "akka-actor-typed_2.13" % "2.6.15"
 libraryDependencies += "com.typesafe.akka" % "akka-stream_2.13" % "2.6.15"
 libraryDependencies += "com.typesafe.akka" % "akka-http_2.13" % "10.2.5-M2"
-libraryDependencies += "com.typesafe.akka" % "akka-http-spray-json_2.13" % "10.2.5-M2"
+//libraryDependencies += "com.typesafe.akka" % "akka-http-spray-json_2.13" % "10.2.5-M2"
+libraryDependencies += "io.circe" %% "circe-core" % "0.14.1"
+libraryDependencies += "io.circe" %% "circe-generic" % "0.14.1"
+libraryDependencies += "io.circe" %% "circe-parser" % "0.14.1"
+
 
 /* log */
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"

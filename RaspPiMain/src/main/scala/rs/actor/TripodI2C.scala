@@ -2,9 +2,12 @@ package rs.actor
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
+import com.typesafe.scalalogging.Logger
 import rs.dev.I2cDev
 
 class TripodI2C {
+
+  val log = Logger(getClass)
 
   var pitchingDegree = 90.0
   var directionDegree = 90.0
@@ -36,6 +39,7 @@ class TripodI2C {
   }
 
   def ready(): Behavior[TripodCommand] = Behaviors.receive { (ctx, msg: TripodCommand) =>
+    log.debug(s"get tripod command : ${msg}")
     given context: ActorContext[TripodCommand] = ctx
     msg match {
       case TripodUpdate(v, h) => direct(pitchingDegree + v, directionDegree + h)

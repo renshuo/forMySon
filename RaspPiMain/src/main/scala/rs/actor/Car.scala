@@ -2,6 +2,7 @@ package rs.actor
 
 import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
+import com.typesafe.scalalogging.Logger
 import rs.dev.I2cDev
 
 import scala.io.StdIn
@@ -30,6 +31,9 @@ class Wheel(p1: Int, p2: Int) {
 }
 
 class Car {
+
+  val logger = Logger(getClass)
+
   val fr = new Wheel(4, 5)
   val br = new Wheel(6, 7)
   val bl = new Wheel(8, 9)
@@ -59,6 +63,7 @@ class Car {
   }
 
   def ready(): Behavior[CarCommand] = Behaviors.receive { (ctx, msg:CarCommand) =>
+    logger.debug(s"get car command ${msg}")
     msg match {
       case Forward(velocity) => forward(velocity)
       case Backward(velocity) => backward(velocity)
