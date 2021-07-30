@@ -53,7 +53,7 @@ libraryDependencies += "com.typesafe.akka" % "akka-http_2.13" % "10.2.5-M2"
 
 /* log */
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
-// Fork a new JVM for 'run' and 'test:run', to avoid JavaFX double initialization problems
+libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4"
 
 libraryDependencies += "ai.djl" % "api" % "0.12.0"
 libraryDependencies += "ai.djl" % "model-zoo" % "0.12.0"
