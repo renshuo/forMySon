@@ -1,5 +1,5 @@
-name := "RaspPiMain"
-version := "0.1"
+name := "RaspPi"
+version := "0.2"
 
 scalaVersion := "3.0.1"
 
