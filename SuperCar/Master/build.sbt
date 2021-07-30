@@ -5,6 +5,8 @@ scalaVersion := "3.0.1"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-feature")
 
+lazy val Common =  ProjectRef(file("../Common"), "common")
+dependsOn(Common)
 
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % Test
 
@@ -50,6 +52,9 @@ libraryDependencies += "org.bytedeco" % "opencv" % "4.5.1-1.5.5" classifier java
 libraryDependencies += "com.typesafe.akka" % "akka-actor-typed_2.13" % "2.6.15"
 libraryDependencies += "com.typesafe.akka" % "akka-stream_2.13" % "2.6.15"
 libraryDependencies += "com.typesafe.akka" % "akka-http_2.13" % "10.2.5-M2"
+libraryDependencies += "io.circe" %% "circe-core" % "0.14.1"
+libraryDependencies += "io.circe" %% "circe-generic" % "0.14.1"
+libraryDependencies += "io.circe" %% "circe-parser" % "0.14.1"
 
 /* log */
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"

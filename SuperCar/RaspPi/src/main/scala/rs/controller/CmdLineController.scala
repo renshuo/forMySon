@@ -8,7 +8,7 @@ import rs.sensor._
 import scala.concurrent.{ExecutionContext, Future}
 import scala.io.StdIn
 
-class CmdLineController(car: ActorRef[CarCommand]) {
+class CmdLineController(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) {
 
   def start():Behavior[String] = Behaviors.receive[String] { (ctx, msg) =>
     ctx.log.info("start cmd line controller")
@@ -35,6 +35,10 @@ class CmdLineController(car: ActorRef[CarCommand]) {
             case "stop" => {
               car.tell(Stop())
               System.exit(0)
+            }
+            case _ if cmd.startsWith("tripod") => {
+              val tripodCmd = cmd.split(" ")
+              tripod.tell(TripodInfo(tripodCmd(1).toDouble, tripodCmd(2).toDouble))
             }
             case _ => println(s"get command $cmd")
           }

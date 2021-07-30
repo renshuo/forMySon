@@ -24,7 +24,7 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
   val tripod: ActorRef[TripodCommand] = ctx.spawn(TripodI2C().ready(), "tripod")
 
   val echoController = ctx.spawn(EchoController(car), "echoHandler")
-  val cmdLineController = ctx.spawn(CmdLineController(car).start(), "controller")
+  val cmdLineController = ctx.spawn(CmdLineController(car, tripod).start(), "controller")
   val webController = ctx.spawn(WebController(car, tripod), "webCtrl")
 
   override def onMessage(msg: String): Behavior[String] = {
@@ -34,7 +34,7 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
       case _ => {
         ctx.log.info("start Pi")
         cmdLineController.tell("start")
-        echoController.tell("start")
+        //echoController.tell("start")
         webController.tell("start")
       }
     }

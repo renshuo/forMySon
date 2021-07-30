@@ -33,7 +33,7 @@ class TripodI2C {
       I2cDev.setPwmRate(directionPort, degreeToRate(direction))
       directionDegree = direction
     }
-    Thread.sleep(40) //设定舵机在40ms内完成转向工作
+    Thread.sleep(30) //设定舵机在40ms内完成转向工作
     I2cDev.setPwmRate(pitchingPort, 0) // pwm清零可以避免pwm信号导致的舵机抖动问题
     I2cDev.setPwmRate(directionPort, 0)
   }

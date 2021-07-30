@@ -22,12 +22,40 @@ class MainController(ctx: ActorContext[String]) extends AbstractBehavior[String]
 
   val joy: ActorRef[ActorRef[JoyCommand]] = ctx.spawn(JoySticker(), "joy")
 
-  val webActor: ActorRef[String] = ctx.spawn(WebClientActor(), "webClient")
+  val webActor: ActorRef[CarCommand | TripodCommand] = ctx.spawn(WebClientActor(), "webClient")
 
   val joyEventHandler = ctx.spawn(Behaviors.receive[JoyCommand]{ (ctx, ev:JoyCommand) =>
     ev match {
-      case x: JoyBtnEvent => println(s"get btn ${x}")
-      case y: JoyAxisEvent => println(s"get btn ${y}")
+      case JoyBtnEvent(btnNum, isDown) => {
+        println(s"get btn ${btnNum}")
+        btnNum match {
+          case 4 => webActor ! TripodUpdate(1, 0)
+          case 5 => webActor ! TripodUpdate(-1, 0)
+          case 6 => webActor ! TripodUpdate(0, 1)
+          case 7 => webActor ! TripodUpdate(0, -1)
+          case _ => {}
+        }
+      }
+      case JoyAxisEvent(axisNum, axisValue) => {
+        println(s"get btn ${axisNum} ${axisValue}")
+        webActor ! (axisNum match {
+          case 1 => {
+            axisValue match {
+              case x if x==0 => Stop()
+              case x if x>0 => Backward(50)
+              case x if x<0 => Forward(50)
+            }
+          }
+          case 0 => {
+            axisValue match {
+              case x if x==0 => Stop()
+              case x if x>0 => TurnRight(50)
+              case x if x<0 => TurnLeft(50)
+            }
+          }
+          case _ => Stop()
+        })
+      }
     }
     Behaviors.same
   }, "joyHandler")
