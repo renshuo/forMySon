@@ -55,7 +55,7 @@ class ControlRouter(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) 
             }
             case Right(carCmd) => {
               logger.info(s"get a post value: ${carCmd} ")
-              car.tell(carCmd)
+              //car.tell(carCmd)
               complete(s"send command ${carCmd} to car.")
             }
           }
@@ -75,7 +75,7 @@ class ControlRouter(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) 
             }
             case Right(tripodCmd) => {
               logger.info(s"get a post value: ${tripodCmd} ")
-              tripod.tell(tripodCmd)
+              //tripod.tell(tripodCmd)
               complete(s"send command ${tripodCmd} to tripod.")
             }
           }
