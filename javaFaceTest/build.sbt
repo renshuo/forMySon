@@ -48,7 +48,8 @@ libraryDependencies += "org.bytedeco" % "opencv" % "4.5.1-1.5.5" classifier java
 
 /* akka */
 libraryDependencies += "com.typesafe.akka" % "akka-actor-typed_2.13" % "2.6.15"
-// libraryDependencies += "com.typesafe.akka" % "akka-cluster-typed_2.13" % "2.6.15"
+libraryDependencies += "com.typesafe.akka" % "akka-stream_2.13" % "2.6.15"
+libraryDependencies += "com.typesafe.akka" % "akka-http_2.13" % "10.2.5-M2"
 
 /* log */
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
