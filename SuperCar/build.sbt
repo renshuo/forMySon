@@ -8,5 +8,6 @@ scalacOptions ++= Seq("-unchecked","-encoding", "utf8", "-feature")
 
 lazy val Common = project
 
-lazy val RaspPiMain = project
+lazy val RaspPi = project
 
+lazy val Master = project
