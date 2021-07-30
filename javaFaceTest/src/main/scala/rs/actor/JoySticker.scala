@@ -16,12 +16,12 @@ case class JoyBtnEvent(btnNum: Int, isDown: Boolean) extends JoyCommand
 case class JoyAxisEvent(axisNum: Int, axisValue: Int) extends JoyCommand
 
 object JoySticker {
-  def apply(joyEventHandler: ActorRef[JoyCommand]) = {
-    Behaviors.setup[String]( ctx => new JoySticker(ctx, joyEventHandler).start())
+  def apply() = {
+    Behaviors.setup[ActorRef[JoyCommand]]( ctx => new JoySticker(ctx).start())
   }
 }
 
-class JoySticker(ctx: ActorContext[String], joyEventHandler: ActorRef[JoyCommand]) {
+class JoySticker(ctx: ActorContext[ActorRef[JoyCommand]]) {
 
   val log = Logger(getClass)
 
@@ -32,7 +32,7 @@ class JoySticker(ctx: ActorContext[String], joyEventHandler: ActorRef[JoyCommand
     def unsign(bit: Int): Long = (b & 0xff).toLong << bit
   }
 
-  def start():Behavior[String] = Behaviors.receiveMessage { msg =>
+  def start():Behavior[ActorRef[JoyCommand]] = Behaviors.receiveMessage { (joyEventHandler: ActorRef[JoyCommand]) =>
     // should use akka stream to read event from js0
     given system: ActorSystem[Nothing] = ctx.system
 
