@@ -6,9 +6,9 @@ import rs.CarControler
 
 import scala.io.StdIn
 
-@main def MainPi(action: String = "start1") = {
+@main def MainPi() = {
   val sys = ActorSystem(CarControler(), "Pi")
-  sys.tell(action)
+  sys.tell("start")
 }
 
 
