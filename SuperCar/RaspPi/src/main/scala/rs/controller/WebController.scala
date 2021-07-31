@@ -42,9 +42,7 @@ class ControlRouter(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) 
   val route =
     pathPrefix("car") {
       get {
-        val a:CarCommand = Forward(1.2)
-        val json1 = a.asJson.noSpaces
-        complete(json1)
+        complete("get car info: ")
       } ~
       post {
         entity(as[String]) { ent =>
@@ -82,5 +80,4 @@ class ControlRouter(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) 
         }
       }
     }
-
 }

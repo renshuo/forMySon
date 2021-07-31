@@ -42,11 +42,25 @@ class Car {
 
   def forward(velocity: Double) = { Array(fl, fr, bl, br).map( _.forward(velocity)) }
 
-  def turnLeft(velocity: Double) = { fl.stop; bl.stop; fr.forward(velocity); br.forward(velocity)}
+  def turnLeft(velocity: Double) = { fl.backward(velocity); bl.backward(velocity); fr.forward(velocity); br.forward(velocity)}
 
-  def turnRight(velocity: Double) = { fl.forward(velocity); bl.forward(velocity); fr.stop; br.stop }
+  def turnRight(velocity: Double) = { fl.forward(velocity); bl.forward(velocity); fr.backward(velocity); br.backward(velocity) }
 
   def backward(velocity: Double) = { Array(fl, fr, bl, br).map(_.backward(velocity)) }
+
+  def moveLeft(velocity: Double) = {
+    fl.forward(velocity)
+    bl.backward(velocity)
+    fr.backward(velocity)
+    br.forward(velocity)
+  }
+
+  def moveRight(velocity: Double) = {
+    fl.backward(velocity)
+    bl.forward(velocity)
+    fr.forward(velocity)
+    br.backward(velocity)
+  }
 
   def stop = { Array(fl, fr, bl, br).map(_.stop) }
 
@@ -69,6 +83,8 @@ class Car {
       case Backward(velocity) => backward(velocity)
       case TurnLeft(velocity) => turnLeft(velocity)
       case TurnRight(velocity) => turnRight(velocity)
+      case MoveLeft(velocity) => moveLeft(velocity)
+      case MoveRight(velocity) => moveRight(velocity)
       case x: Stop => stop
       case x: Test => test
     }

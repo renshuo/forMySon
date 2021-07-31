@@ -7,3 +7,6 @@ case class TurnLeft(velocity: Double) extends CarCommand
 case class TurnRight(velocity: Double) extends CarCommand
 case class Stop() extends CarCommand
 case class Test() extends CarCommand
+
+case class MoveLeft(velocity: Double) extends CarCommand
+case class MoveRight(velocity: Double) extends CarCommand

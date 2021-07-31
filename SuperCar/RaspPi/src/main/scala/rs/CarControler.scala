@@ -21,9 +21,9 @@ object CarControler {
 class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](ctx)  {
 
   val car: ActorRef[CarCommand] = ctx.spawn(Car().ready(), "car")
-  val tripod: ActorRef[TripodCommand] = ctx.spawn(TripodI2C().ready(), "tripod")
+  val tripod: ActorRef[TripodCommand] = ctx.spawn(TripodI2C(), "tripod")
 
-  val echoController = ctx.spawn(EchoController(car), "echoHandler")
+  //val echoController = ctx.spawn(EchoController(car), "echoHandler")
   val cmdLineController = ctx.spawn(CmdLineController(car, tripod).start(), "controller")
   val webController = ctx.spawn(WebController(car, tripod), "webCtrl")
 
