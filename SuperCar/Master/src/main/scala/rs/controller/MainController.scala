@@ -29,14 +29,14 @@ class MainController(ctx: ActorContext[String]) extends AbstractBehavior[String]
       case JoyBtnEvent(btnNum, isDown) => {
         println(s"get btn ${btnNum}")
         val tripodBaseDegree  =3
-        val tripodUpdateDelay = 15
+        val tripodUpdateDelay = 20
         btnNum match {
-          case 4 => webActor ! TripodUpdate(tripodBaseDegree, 0, tripodUpdateDelay)
-          case 5 => webActor ! TripodUpdate(-tripodBaseDegree, 0, tripodUpdateDelay)
-          case 6 => webActor ! TripodUpdate(0, tripodBaseDegree, tripodUpdateDelay)
-          case 7 => webActor ! TripodUpdate(0, -tripodBaseDegree, tripodUpdateDelay)
-          case 1 => webActor ! (if isDown then MoveRight(50) else Stop())
-          case 3 => webActor ! (if isDown then MoveLeft(50) else Stop())
+          case 3 => webActor ! TripodUpdate(tripodBaseDegree, 0, tripodUpdateDelay)
+          case 1 => webActor ! TripodUpdate(-tripodBaseDegree, 0, tripodUpdateDelay)
+          case 0 => webActor ! TripodUpdate(0, tripodBaseDegree, tripodUpdateDelay)
+          case 2 => webActor ! TripodUpdate(0, -tripodBaseDegree, tripodUpdateDelay)
+          case 4 => webActor ! (if isDown then MoveRight(70) else Stop())
+          case 5 => webActor ! (if isDown then MoveLeft(70) else Stop())
           case _ => {}
         }
       }

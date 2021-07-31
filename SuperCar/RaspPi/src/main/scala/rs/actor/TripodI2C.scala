@@ -33,12 +33,14 @@ class TripodI2C(ctx: ActorContext[TripodCommand]) {
   def direct(pitching: Double, direction: Double, delay: Int = 30)(using ctx: ActorContext[TripodCommand]): Unit = {
     if (pitching < 0 || pitching > 180) {
       ctx.log.warn(s"pitchingNew is $pitching ignore, out of (0 - 180)")
+    } else if (pitchingDegree == pitching) {
     } else {
       I2cDev.setPwmRate(pitchingPort, degreeToRate(pitching))
       pitchingDegree = pitching
     }
     if (direction < 0 || direction > 180) {
       ctx.log.warn(s"directionNew is $direction, ignore, out of (0 - 180)")
+    } else if (directionDegree == direction) {
     } else {
       I2cDev.setPwmRate(directionPort, degreeToRate(direction))
       directionDegree = direction

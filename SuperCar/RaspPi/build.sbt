@@ -1,10 +1,4 @@
 name := "RaspPi"
-version := "0.2"
-
-scalaVersion := "3.0.1"
-
-lazy val Common =  ProjectRef(file("../Common"), "common")
-dependsOn(Common)
 
 scalacOptions ++= Seq("-unchecked","-encoding", "utf8", "-feature")
 

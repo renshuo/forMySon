@@ -1,12 +1,6 @@
 name := "Master"
-version := "0.1"
-
-scalaVersion := "3.0.1"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-feature")
-
-lazy val Common =  ProjectRef(file("../Common"), "common")
-dependsOn(Common)
 
 libraryDependencies += "com.novocode" % "junit-interface" % "0.11" % Test
 
