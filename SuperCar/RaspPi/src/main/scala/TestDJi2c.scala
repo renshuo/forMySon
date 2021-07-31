@@ -20,6 +20,26 @@ def TestDJ2(): Unit = {
   }
 }
 
+/**
+ * 0 0 180 1 200 0 0.5
+ * @param port
+ * @param start
+ * @param end
+ * @param step
+ * @param delay
+ * @param isStop
+ * @param stopRate
+ */
+@main def TestDJ3(port: Int, start: Int, end: Int, step: Int, delay: Int, isStop: Int , stopRate : Double) = {
+  val dev = I2cDev
+
+  for (degree <- Range(start, end, step)) {
+    dev.setPwmRate(port, degreeToRate(degree.toDouble))
+    Thread.sleep(delay)
+    if (isStop == 1) dev.setPwmRate(port, stopRate)
+  }
+}
+
 
 /**
  * 舵机： 50Hz -> 20ms

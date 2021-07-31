@@ -1,3 +1,5 @@
+import sbt.Keys.runBefore
+
 name := "RaspPi"
 
 scalacOptions ++= Seq("-unchecked","-encoding", "utf8", "-feature")
@@ -57,3 +59,13 @@ assembly / assemblyMergeStrategy  := {
   case "reference.conf" => MergeStrategy.concat
   case _ => MergeStrategy.deduplicate
 }
+//import deployssh.DeploySSH._
+//lazy val myProject = project.enablePlugins(DeploySSH)
+
+val upload = taskKey[Unit]("")
+upload:= {
+  import sys.process._
+  "scp ./RaspPi/target/scala-3.0.1/raspMain.jar pi2:".!
+  println("upload success.")
+}
+

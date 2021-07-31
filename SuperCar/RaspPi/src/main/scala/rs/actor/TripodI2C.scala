@@ -5,6 +5,8 @@ import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import com.typesafe.scalalogging.Logger
 import rs.dev.I2cDev
 
+import scala.concurrent.{ExecutionContext, Future}
+
 object TripodI2C{
 
   def apply():Behavior[TripodCommand] = {
@@ -15,12 +17,16 @@ object TripodI2C{
 class TripodI2C(ctx: ActorContext[TripodCommand]) {
 
   given ctx1: ActorContext[TripodCommand] = ctx
+  given executionContext :ExecutionContext = ctx.executionContext
 
   val log = Logger(getClass)
 
-  var pitchingDegree = 90.0
-  var directionDegree = 90.0
-  direct(pitchingDegree, directionDegree)
+  var pitchingDegree = 0.0
+  pitchingSet(90.0)
+  var directionDegree = 0.0
+  directionSet(90.0)
+  var pitchingVelocity = 0.0
+  var directionVelocity = 0.0
 
   val pitchingPort = 0
   val directionPort = 1
@@ -30,33 +36,55 @@ class TripodI2C(ctx: ActorContext[TripodCommand]) {
    */
   def degreeToRate(degree: Double): Double = 2.5 + degree /180 *10
 
-  def direct(pitching: Double, direction: Double, delay: Int = 30)(using ctx: ActorContext[TripodCommand]): Unit = {
-    if (pitching < 0 || pitching > 180) {
-      ctx.log.warn(s"pitchingNew is $pitching ignore, out of (0 - 180)")
-    } else if (pitchingDegree == pitching) {
+  private def pitchingSet(newPitching: Double) = {
+    if (newPitching < 0 || newPitching > 180) {
+      println(s"pitchingNew is $newPitching ignore, out of (0 - 180)")
+    } else if (Math.abs(pitchingDegree-newPitching)<0.2) {
     } else {
-      I2cDev.setPwmRate(pitchingPort, degreeToRate(pitching))
-      pitchingDegree = pitching
+      pitchingDegree = newPitching
+      I2cDev.setPwmRate(pitchingPort, degreeToRate(newPitching))
     }
-    if (direction < 0 || direction > 180) {
-      ctx.log.warn(s"directionNew is $direction, ignore, out of (0 - 180)")
-    } else if (directionDegree == direction) {
-    } else {
-      I2cDev.setPwmRate(directionPort, degreeToRate(direction))
-      directionDegree = direction
-    }
-    Thread.sleep(delay) //设定舵机在40ms内完成转向工作
-    I2cDev.setPwmRate(pitchingPort, 0) // pwm清零可以避免pwm信号导致的舵机抖动问题
-    I2cDev.setPwmRate(directionPort, 0)
   }
 
+  def directionSet(newDirection: Double): Unit = {
+    if (newDirection < 0 || newDirection > 180) {
+      println(s"directionNew is $newDirection, ignore, out of (0 - 180)")
+    } else if (Math.abs(directionDegree-newDirection)<0.2) {
+    } else {
+      directionDegree = newDirection
+      I2cDev.setPwmRate(directionPort, degreeToRate(newDirection))
+    }
+  }
+
+  Future {
+    while (true) {
+      //println(s"update velocify : ${pitchingVelocity}, ${directionVelocity}")
+      try{
+        if (Math.abs(pitchingVelocity) > 0.2) pitchingSet(pitchingDegree + pitchingVelocity)
+        if (Math.abs(directionVelocity) > 0.2) directionSet(directionDegree + directionVelocity)
+      } catch {
+        case e => println(s"${e}")
+      }
+      Thread.sleep(40)
+    }
+  }
 
   def ready(): Behavior[TripodCommand] = Behaviors.receive { (ctx, msg: TripodCommand) =>
     log.debug(s"get tripod command : ${msg}")
     given context: ActorContext[TripodCommand] = ctx
     msg match {
-      case TripodUpdate(v, h, delay) => direct(pitchingDegree + v, directionDegree + h, delay)
-      case TripodInfo(pitch, direction) => direct(pitch, direction, 40)
+      case TripodUpdate(v, h, delay) => {
+        pitchingSet(pitchingDegree + v)
+        directionSet(directionDegree + h)
+      }
+      case TripodInfo(pitch, direction) => {
+        pitchingSet(pitch)
+        directionSet(direction)
+      }
+      case TripodVelocity(pitchingVelocity, directionVelocity) => {
+        this.pitchingVelocity = pitchingVelocity
+        this.directionVelocity = directionVelocity
+      }
     }
     Behaviors.same
   }

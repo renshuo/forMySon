@@ -24,6 +24,10 @@ class MainController(ctx: ActorContext[String]) extends AbstractBehavior[String]
 
   val webActor: ActorRef[CarCommand | TripodCommand] = ctx.spawn(WebClientActor(), "webClient")
 
+  var tripodP = 90
+  var tripodD = 90
+  webActor.tell(TripodInfo(tripodP, tripodD))
+
   val joyEventHandler = ctx.spawn(Behaviors.receive[JoyCommand]{ (ctx, ev:JoyCommand) =>
     ev match {
       case JoyBtnEvent(btnNum, isDown) => {
@@ -31,10 +35,10 @@ class MainController(ctx: ActorContext[String]) extends AbstractBehavior[String]
         val tripodBaseDegree  =3
         val tripodUpdateDelay = 20
         btnNum match {
-          case 3 => webActor ! TripodUpdate(tripodBaseDegree, 0, tripodUpdateDelay)
-          case 1 => webActor ! TripodUpdate(-tripodBaseDegree, 0, tripodUpdateDelay)
-          case 0 => webActor ! TripodUpdate(0, tripodBaseDegree, tripodUpdateDelay)
-          case 2 => webActor ! TripodUpdate(0, -tripodBaseDegree, tripodUpdateDelay)
+          case 3 => webActor ! (if isDown then TripodVelocity(2, 0) else TripodVelocity(0, 0))
+          case 1 => webActor ! (if isDown then TripodVelocity(-2, 0) else TripodVelocity(0, 0))
+          case 0 => webActor ! (if isDown then TripodVelocity(0, -2) else TripodVelocity(0, 0))
+          case 2 => webActor ! (if isDown then TripodVelocity(0, 2) else TripodVelocity(0, 0))
           case 4 => webActor ! (if isDown then MoveRight(70) else Stop())
           case 5 => webActor ! (if isDown then MoveLeft(70) else Stop())
           case _ => {}
