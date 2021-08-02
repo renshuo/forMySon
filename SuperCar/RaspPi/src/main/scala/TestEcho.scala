@@ -30,7 +30,7 @@ object TestEchoObj {
 //    }
 //  })
 
-  def getDistance()= {
+  def getDistance(): Double = {
     trigger.high()
     Thread.sleep(0, 10000)
     trigger.low()
@@ -41,13 +41,17 @@ object TestEchoObj {
     val timeElasped = (endTime-startTime).toDouble/1000000
     val distance = timeElasped* 34.3 /2
     println(s"get distance : ${distance}")
+    distance
   }
 }
 
 @main
 def TestEcho = {
   while(true) {
-    TestEchoObj.getDistance()
+    val dist = TestEchoObj.getDistance()
+    if (dist < 15.0) {
+      
+    }
     Thread.sleep(400)
   }
 }

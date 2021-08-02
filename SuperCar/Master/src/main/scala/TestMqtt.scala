@@ -13,7 +13,7 @@ import scala.util.{Failure, Success, Try}
 
 
 val connectionSettings = MqttConnectionSettings(
-  "tcp://localhost:1885",
+  "tcp://pi2:1883",
   "test",
   new MemoryPersistence
 )
