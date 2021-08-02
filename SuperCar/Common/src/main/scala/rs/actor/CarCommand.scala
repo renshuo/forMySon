@@ -1,6 +1,6 @@
 package rs.actor
 
-sealed trait CarCommand
+sealed trait CarCommand extends BaseCommand
 case class Forward(velocity: Double) extends CarCommand
 case class Backward(velocity: Double) extends CarCommand
 case class TurnLeft(velocity: Double) extends CarCommand
