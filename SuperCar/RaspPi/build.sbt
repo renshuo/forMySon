@@ -23,10 +23,13 @@ libraryDependencies += "io.circe" %% "circe-core" % "0.14.1"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.1"
 libraryDependencies += "io.circe" %% "circe-parser" % "0.14.1"
 
-
 /* log */
 libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.3"
 libraryDependencies += "com.typesafe.scala-logging" %% "scala-logging" % "3.9.4"
+
+/* MQTT */
+libraryDependencies += "com.lightbend.akka" % "akka-stream-alpakka-mqtt_2.13" % "3.0.2"
+
 
 mainClass := Some("MainPi")
 
