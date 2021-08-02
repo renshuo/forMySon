@@ -66,7 +66,8 @@ libraryDependencies += "ai.djl.pytorch" % "pytorch-model-zoo" % "0.12.0"
 libraryDependencies += "ai.djl.pytorch" % "pytorch-native-cpu" % "1.8.1" classifier "linux-x86_64"
 //libraryDependencies += "ai.djl.tensorflow" % "tensorflow-native-auto" % "2.4.1"
 
-
+/* MQTT */
+libraryDependencies += "com.lightbend.akka" % "akka-stream-alpakka-mqtt_2.13" % "3.0.2"
 
 fork := true
 
