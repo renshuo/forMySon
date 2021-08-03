@@ -5,6 +5,7 @@ import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import rs.actor._
 import rs.controller._
 import rs.sensor._
+import rs.source.*
 
 import scala.io.StdIn
 import org.slf4j.{Logger, LoggerFactory}
@@ -23,9 +24,11 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
   val car: ActorRef[CarCommand] = ctx.spawn(Car().ready(), "car")
   val tripod: ActorRef[TripodCommand] = ctx.spawn(TripodI2C(), "tripod")
 
-  //val echoController = ctx.spawn(EchoController(car), "echoHandler")
-  val cmdLineController = ctx.spawn(CmdLineController(car, tripod).start(), "controller")
-  val webController = ctx.spawn(WebController(car, tripod), "webCtrl")
+  val controller: ActorRef[BaseCommand] = ctx.spawn(DefaultController(car, tripod), "controller")
+
+  val cmdSource: ActorRef[String] = ctx.spawn(CmdLineSource(controller), "cmdIn")
+  val mqttSource: ActorRef[String] = ctx.spawn(MqttSub(controller), "mqtt")
+  val webIn: ActorRef[String] = ctx.spawn(WebIn(controller), "web")
 
   override def onMessage(msg: String): Behavior[String] = {
     msg match {
@@ -33,9 +36,9 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
       case "stop" => car.tell(Stop())
       case _ => {
         ctx.log.info("start Pi")
-        cmdLineController.tell("start")
-        //echoController.tell("start")
-        webController.tell("start")
+        cmdSource.tell("start")
+        mqttSource.tell("start")
+        webIn.tell("start")
       }
     }
     Behaviors.same

@@ -1,27 +1,29 @@
-package rs.controller
+package rs.source
 
-import rs.actor.*
-
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import akka.http.scaladsl.server.{Directives, Route}
 import akka.http.scaladsl.{Http, HttpExt, ServerBuilder}
 import com.typesafe.scalalogging.Logger
+import rs.actor.*
 
-object WebController {
+object WebIn {
 
-  def apply(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]): Behavior[String]= {
-    Behaviors.setup[String](ctx => new WebController(ctx, car, tripod))
+  def apply(controller: ActorRef[BaseCommand]): Behavior[String]= {
+    Behaviors.setup[String](ctx => new WebIn(ctx, controller))
   }
 }
 
-class WebController(context: ActorContext[String], car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) extends AbstractBehavior[String](context) {
+class WebIn(context: ActorContext[String], controller: ActorRef[BaseCommand]) extends AbstractBehavior[String](context) {
   val logger = Logger(getClass)
+
+  val ipAddr = "0.0.0.0"
+  val port = 8010
 
   override def onMessage(msg: String): Behavior[String] = {
     context.log.info("start web controller.")
-    val router = ControlRouter(car, tripod).route
-    val builder: ServerBuilder = Http()(context.system).newServerAt("0.0.0.0", 8010)
+    val router = WebInControlRouter(controller).route
+    val builder: ServerBuilder = Http()(context.system).newServerAt(ipAddr, port)
     val server = builder.bindFlow(Route.toFlow(router)(context.system))
     server.onComplete {
       case scala.util.Success(binding) => println(s"server start success. ${binding}")
@@ -31,11 +33,11 @@ class WebController(context: ActorContext[String], car: ActorRef[CarCommand], tr
   }
 }
 
-class ControlRouter(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) extends Directives {
-  import io.circe.parser._
-  import io.circe.generic.auto._
-  import io.circe.syntax._
-  import io.circe._
+class WebInControlRouter(controller: ActorRef[BaseCommand]) extends Directives {
+  import io.circe.*
+  import io.circe.generic.auto.*
+  import io.circe.parser.*
+  import io.circe.syntax.*
 
   val logger = Logger(getClass)
 
@@ -53,7 +55,7 @@ class ControlRouter(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) 
             }
             case Right(carCmd) => {
               logger.info(s"get a post value: ${carCmd} ")
-              car.tell(carCmd)
+              controller.tell(carCmd)
               complete(s"send command ${carCmd} to car.")
             }
           }
@@ -73,7 +75,7 @@ class ControlRouter(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) 
             }
             case Right(tripodCmd) => {
               logger.info(s"get a post value: ${tripodCmd} ")
-              tripod.tell(tripodCmd)
+              controller.tell(tripodCmd)
               complete(s"send command ${tripodCmd} to tripod.")
             }
           }

@@ -13,7 +13,7 @@ import scala.util.{Failure, Success, Try}
 
 
 val connectionSettings = MqttConnectionSettings(
-  "tcp://pi2:1883",
+  "tcp://localhost:1883",
   "test",
   new MemoryPersistence
 )
@@ -30,7 +30,10 @@ val connectionSettings = MqttConnectionSettings(
     )
 
     val sink: Sink[MqttMessage, Future[Done]] = MqttSink(connectionSettings, MqttQoS.AtLeastOnce)
-    Source(msgs).runWith(sink)
+
+    Source(msgs).runWith(sink).onComplete {
+      case _ => println(_)
+    }
 
     Behaviors.same[Any]
   }), "sys")
@@ -54,6 +57,7 @@ val connectionSettings = MqttConnectionSettings(
       .map((msg: MqttMessageWithAck) => println(msg.getClass))
       .toMat(Sink.seq)(Keep.both)
       .run()
+
 
     Behaviors.same[Any]
   }), "sys")

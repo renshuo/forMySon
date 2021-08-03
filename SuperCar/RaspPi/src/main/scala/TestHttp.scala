@@ -14,7 +14,7 @@ import io.circe.generic.auto.*
 import io.circe.syntax.*
 import io.circe.*
 import com.typesafe.scalalogging.Logger
-import rs.controller.ControlRouter
+import rs.source.WebInControlRouter
 
 
 @main def TestHttpMain = {
@@ -26,7 +26,7 @@ import rs.controller.ControlRouter
       }
   ), "Pi")
 
-  val router = ControlRouter(null, null).route
+  val router = WebInControlRouter(null).route
 
   val builder: ServerBuilder = Http()(sys).newServerAt("0.0.0.0", 8010)
   val server = builder.bindFlow(Route.toFlow(router)(sys))
