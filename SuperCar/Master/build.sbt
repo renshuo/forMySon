@@ -43,8 +43,10 @@ libraryDependencies += "org.bytedeco" % "opencv" % "4.5.1-1.5.5" classifier java
 //libraryDependencies += "org.bytedeco" % "videoinput" % "0.200-1.5.5"
 
 /* akka */
-libraryDependencies += "com.typesafe.akka" % "akka-actor-typed_2.13" % "2.6.15"
-libraryDependencies += "com.typesafe.akka" % "akka-stream_2.13" % "2.6.15"
+val akkaVersion = "2.6.15"
+libraryDependencies += "com.typesafe.akka" % "akka-actor-typed_2.13" % akkaVersion
+libraryDependencies += "com.typesafe.akka" % "akka-actor-testkit-typed_2.13" % akkaVersion % Test
+libraryDependencies += "com.typesafe.akka" % "akka-stream_2.13" % akkaVersion
 libraryDependencies += "com.typesafe.akka" % "akka-http_2.13" % "10.2.5-M2"
 libraryDependencies += "io.circe" %% "circe-core" % "0.14.1"
 libraryDependencies += "io.circe" %% "circe-generic" % "0.14.1"

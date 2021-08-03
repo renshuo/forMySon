@@ -15,8 +15,10 @@ libraryDependencies += "com.pi4j" % "pi4j-core" % "1.4"
 //libraryDependencies += "com.pi4j" % "pi4j-service" % "1.4"
 
 /* akka */
-libraryDependencies += "com.typesafe.akka" % "akka-actor-typed_2.13" % "2.6.15"
-libraryDependencies += "com.typesafe.akka" % "akka-stream_2.13" % "2.6.15"
+val akkaVersion = "2.6.15"
+libraryDependencies += "com.typesafe.akka" % "akka-actor-typed_2.13" % akkaVersion
+libraryDependencies += "com.typesafe.akka" % "akka-actor-testkit-typed_2.13" % akkaVersion % Test
+libraryDependencies += "com.typesafe.akka" % "akka-stream_2.13" % akkaVersion
 libraryDependencies += "com.typesafe.akka" % "akka-http_2.13" % "10.2.5-M2"
 //libraryDependencies += "com.typesafe.akka" % "akka-http-spray-json_2.13" % "10.2.5-M2"
 libraryDependencies += "io.circe" %% "circe-core" % "0.14.1"
