@@ -19,9 +19,9 @@ object EchoController {
 class EchoController(context: ActorContext[String], car: ActorRef[CarCommand]) extends AbstractBehavior[String](context) {
   
 
-  val handler = context.spawn( Behaviors.receive[Double] { (ctx, distance) =>
+  val handler = context.spawn( Behaviors.receive[EchoEvent] { (ctx, distance) =>
     ctx.log.debug(s"get distance : ${distance}")
-    if (distance < 15) {
+    if (distance.asInstanceOf[EchoInfo].distance < 15) {
       car.tell(Stop())
       Thread.sleep(200)
       car.tell(Backward(40))

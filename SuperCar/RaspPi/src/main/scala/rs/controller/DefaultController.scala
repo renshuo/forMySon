@@ -20,11 +20,13 @@ class DefaultController(ctx: ActorContext[BaseCommand], car: ActorRef[CarCommand
   override def onMessage(msg: BaseCommand): Behavior[BaseCommand] = {
     // how to deal with a CarCommand or TripodCommand
     msg match {
-      case x: CarCommand => {
-        log.info(s"get a car command: ${x}")
+      case carCommand: CarCommand => {
+        log.info(s"get a car command: ${carCommand}")
+        car.tell(carCommand)
       }
-      case x: TripodCommand => {
-        log.info(s"get a tripod command: ${x}")
+      case tripodCommand: TripodCommand => {
+        log.info(s"get a tripod command: ${tripodCommand}")
+        tripod.tell(tripodCommand)
       }
     }
     Behaviors.same

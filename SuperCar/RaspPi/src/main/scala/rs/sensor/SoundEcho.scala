@@ -1,27 +1,29 @@
 package rs.sensor
 
 import akka.actor.typed.{ActorRef, Behavior}
-import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 
 import java.time.Duration
 import rs.dev.{GpioDevDigitalIn, GpioDevDigitalOut}
 import com.typesafe.scalalogging.Logger
+import rs.actor.{EchoEvent, EchoInfo}
+
+import scala.concurrent.duration.{FiniteDuration, SECONDS}
 
 object SoundEcho {
 
   val logger = Logger(getClass)
 
-  def apply(distanceHandler: ActorRef[Double]): Behavior[String] = {
+  def apply(distanceHandler: ActorRef[EchoEvent]): Behavior[String] = {
     Behaviors.setup(context =>
       Behaviors.withTimers { timer =>
-        import scala.concurrent.duration.{FiniteDuration, SECONDS}
         timer.startTimerWithFixedDelay("check distance", FiniteDuration(1, SECONDS))
-        new SoundEcho(distanceHandler).ready()
+        new SoundEcho(context, distanceHandler)
       }
     )
   }
 }
-class SoundEcho(distanceHandler: ActorRef[Double]) {
+class SoundEcho(ctx: ActorContext[String], distanceHandler: ActorRef[EchoEvent]) extends AbstractBehavior(ctx) {
 
   val logger = Logger(getClass)
 
@@ -34,7 +36,7 @@ class SoundEcho(distanceHandler: ActorRef[Double]) {
     }
   }
 
-  def ready(): Behavior[String] = Behaviors.receive[String] { (ctx, msg) =>
+  override def onMessage(msg: String): Behavior[String] = {
     dev.high
     Thread.sleep(0, 10000)
     dev.low
@@ -48,8 +50,9 @@ class SoundEcho(distanceHandler: ActorRef[Double]) {
     }
     val timeElasped = (endTime - startTime).toDouble / 1000000
     val distance = timeElasped * 34.3 / 2
-    distanceHandler.tell(distance)
+    distanceHandler.tell(EchoInfo(distance, 90.0d))
 
     Behaviors.same
   }
+
 }

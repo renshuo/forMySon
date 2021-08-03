@@ -30,6 +30,8 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
   val mqttSource: ActorRef[String] = ctx.spawn(MqttSub(controller), "mqtt")
   val webIn: ActorRef[String] = ctx.spawn(WebIn(controller), "web")
 
+  val echo: ActorRef[String] = ctx.spawn(SoundEcho(controller), "echo")
+
   override def onMessage(msg: String): Behavior[String] = {
     msg match {
       case "test" => test()

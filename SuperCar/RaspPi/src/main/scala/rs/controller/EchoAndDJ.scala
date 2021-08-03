@@ -1,5 +1,30 @@
+import EchoAndDjController.log
+import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
+import akka.actor.typed.{ActorRef, Behavior}
+import com.typesafe.scalalogging.Logger
+import rs.actor.{BaseCommand, CarCommand, TripodCommand}
 import rs.dev.I2cDev
 
+
+object EchoAndDjController {
+
+  val log = Logger(getClass)
+
+  def apply(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]): Behavior[BaseCommand]= {
+    log.info("create Echo controller")
+    Behaviors.setup[BaseCommand](ctx => new EchoAndDjController(ctx, car, tripod))
+  }
+}
+
+
+class EchoAndDjController(ctx: ActorContext[BaseCommand], car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) extends AbstractBehavior[BaseCommand](ctx) {
+
+
+  override def onMessage(msg: BaseCommand): Behavior[BaseCommand] = {
+    log.info(s"get msg: ${msg}")
+    Behaviors.same
+  }
+}
 
 @main def EchoAndDj(): Unit ={
   val dev = I2cDev

@@ -75,7 +75,11 @@ class MqttSub(ctx: ActorContext[String], controller: ActorRef[BaseCommand]) exte
             }
             case Right(tripodCmd) => {
               println(s"send command ${tripodCmd} to car.")
-              controller.tell(tripodCmd)
+              try{
+                controller.tell(tripodCmd)
+              }catch {
+                case x: Exception => println(x)
+              }
             }
           }
         }
