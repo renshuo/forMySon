@@ -24,13 +24,17 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
   val car: ActorRef[CarCommand] = ctx.spawn(Car().ready(), "car")
   val tripod: ActorRef[TripodCommand] = ctx.spawn(TripodI2C(), "tripod")
 
-  val controller: ActorRef[BaseCommand] = ctx.spawn(DefaultController(car, tripod), "controller")
+  lazy val ctl: Behavior[BaseCommand] = DefaultController(car, tripodd)
+  val controller: ActorRef[BaseCommand] = ctx.spawn(ctl, "controller")
 
   val cmdSource: ActorRef[String] = ctx.spawn(CmdLineSource(controller), "cmdIn")
   val mqttSource: ActorRef[String] = ctx.spawn(MqttSub(controller), "mqtt")
   val webIn: ActorRef[String] = ctx.spawn(WebIn(controller), "web")
 
-  val echo: ActorRef[String] = ctx.spawn(SoundEcho(controller), "echo")
+  private val soundEcho: Behavior[String] = SoundEcho(controller)
+  val echo: ActorRef[String] = ctx.spawn(soundEcho, "echo")
+
+
 
   override def onMessage(msg: String): Behavior[String] = {
     msg match {

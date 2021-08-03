@@ -1,5 +1,6 @@
 package rs.sensor
 
+import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 
@@ -14,16 +15,19 @@ object SoundEcho {
 
   val logger = Logger(getClass)
 
-  def apply(distanceHandler: ActorRef[EchoEvent]): Behavior[String] = {
-    Behaviors.setup(context =>
+  val soundEchoKey = ServiceKey[String]("soundEcho")
+
+  def apply(controller: ActorRef[EchoEvent]): Behavior[String] = {
+    Behaviors.setup( (context:ActorContext[String]) =>
+      context.system.receptionist ! Receptionist.Register(soundEchoKey, context.self)
       Behaviors.withTimers { timer =>
         timer.startTimerWithFixedDelay("check distance", FiniteDuration(1, SECONDS))
-        new SoundEcho(context, distanceHandler)
+        new SoundEcho(context, controller)
       }
     )
   }
 }
-class SoundEcho(ctx: ActorContext[String], distanceHandler: ActorRef[EchoEvent]) extends AbstractBehavior(ctx) {
+class SoundEcho(ctx: ActorContext[String], controller: ActorRef[EchoEvent]) extends AbstractBehavior(ctx) {
 
   val logger = Logger(getClass)
 
@@ -50,7 +54,7 @@ class SoundEcho(ctx: ActorContext[String], distanceHandler: ActorRef[EchoEvent])
     }
     val timeElasped = (endTime - startTime).toDouble / 1000000
     val distance = timeElasped * 34.3 / 2
-    distanceHandler.tell(EchoInfo(distance, 90.0d))
+    controller.tell(EchoInfo(distance, 90.0d))
 
     Behaviors.same
   }
