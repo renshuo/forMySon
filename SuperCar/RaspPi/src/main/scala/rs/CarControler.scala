@@ -24,7 +24,7 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
   val car: ActorRef[CarCommand] = ctx.spawn(Car().ready(), "car")
   val tripod: ActorRef[TripodCommand] = ctx.spawn(TripodI2C(), "tripod")
 
-  lazy val ctl: Behavior[BaseCommand] = DefaultController(car, tripodd)
+  lazy val ctl: Behavior[BaseCommand] = DefaultController(car, tripod)
   val controller: ActorRef[BaseCommand] = ctx.spawn(ctl, "controller")
 
   val cmdSource: ActorRef[String] = ctx.spawn(CmdLineSource(controller), "cmdIn")

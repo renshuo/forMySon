@@ -14,8 +14,14 @@ object DefaultController {
 
   def apply(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]): Behavior[BaseCommand] = {
     Behaviors.setup{ ctx =>
-//      ctx.spawnAnonymous(SoundEcho())
-      ctx.system.receptionist ! Receptionist.Subscribe(SoundEcho.soundEchoKey, ctx.self)
+////      ctx.spawnAnonymous(SoundEcho())
+//      ctx.system.receptionist ! Receptionist.Subscribe(SoundEcho.soundEchoKey, ctx.self)
+//      Behaviors.receiveMessagePartial[Receptionist.Listing] {
+//        case SoundEcho.soundEchoKey.Listing(listings) => {
+//          //listings.foreach(ps => ctx.spawnAnonymous(SoundEcho(ps)))
+//          Behaviors.same
+//        }
+//      }
       new DefaultController(ctx, car, tripod)
     }
   }
