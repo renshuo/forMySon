@@ -1,14 +1,17 @@
 package rs
 
+import akka.actor.typed.receptionist.ServiceKey
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
-import rs.actor._
-import rs.controller._
-import rs.sensor._
+import rs.actor.*
+import rs.controller.*
+import rs.sensor.*
 import rs.source.*
 
 import scala.io.StdIn
 import org.slf4j.{Logger, LoggerFactory}
+
+val controllerKey = ServiceKey[BaseCommand]("control")
 
 object CarControler {
 
@@ -24,16 +27,15 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
   val car: ActorRef[CarCommand] = ctx.spawn(Car().ready(), "car")
   val tripod: ActorRef[TripodCommand] = ctx.spawn(TripodI2C(), "tripod")
   val echo: ActorRef[EchoDirection] = ctx.spawn(SoundEcho(), "echo")
+  val cmdSource: ActorRef[String] = ctx.spawn(CmdLineSource(), "cmdIn")
+  val mqttSource: ActorRef[String] = ctx.spawn(MqttSub(), "mqtt")
+  val webIn: ActorRef[String] = ctx.spawn(WebIn(), "web")
 
-  val controller: ActorRef[BaseCommand] = ctx.spawn(DefaultController(car, tripod, echo), "controller")
-
-  val cmdSource: ActorRef[String] = ctx.spawn(CmdLineSource(controller), "cmdIn")
-  val mqttSource: ActorRef[String] = ctx.spawn(MqttSub(controller), "mqtt")
-  val webIn: ActorRef[String] = ctx.spawn(WebIn(controller), "web")
 
   override def onMessage(msg: String): Behavior[String] = {
+    val controller: ActorRef[BaseCommand] = ctx.spawn(DefaultController(car, tripod, echo), "controller")
     msg match {
-      case "test" => test()
+      case "test" => car.tell(Test())
       case "stop" => car.tell(Stop())
       case _ => {
         ctx.log.info("start Pi")
@@ -43,12 +45,5 @@ class CarControler(ctx: ActorContext[String]) extends AbstractBehavior[String](c
       }
     }
     Behaviors.same
-  }
-
-  def test(): Unit = {
-    ctx.log.info("start test car: ")
-    car.tell(Test())
-
-    println("finish test.")
   }
 }

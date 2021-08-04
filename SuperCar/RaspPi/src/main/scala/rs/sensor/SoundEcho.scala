@@ -13,10 +13,10 @@ import scala.concurrent.duration.{FiniteDuration, SECONDS}
 
 object SoundEcho {
 
-  import rs.controller.controllerKey
-
   val logger = Logger(getClass)
 
+
+  import rs.controllerKey
   var controllerList = Set[ActorRef[BaseCommand]]()
 
   def apply(): Behavior[EchoEvent] = {

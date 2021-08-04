@@ -1,6 +1,7 @@
 package rs.source
 
 import akka.Done
+import akka.actor.typed.receptionist.Receptionist
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.http.scaladsl.server.Directives.complete
@@ -26,12 +27,28 @@ val connectionSettings = MqttConnectionSettings(
 
 object MqttSub {
 
-  def apply(controller: ActorRef[BaseCommand]): Behavior[String] = {
-    Behaviors.setup(ctx => new MqttSub(ctx, controller))
+  import rs.controllerKey
+  var controllerList = Set[ActorRef[BaseCommand]]()
+
+  def apply(): Behavior[String] = {
+    Behaviors.setup{context =>
+
+      val blist = context.spawn(Behaviors.receiveMessage{ (list: Receptionist.Listing) =>
+        val si: Set[ActorRef[BaseCommand]] = list.serviceInstances(controllerKey)
+        this.controllerList = si
+        println(s"update actor A list: ${this.controllerList}")
+        Behaviors.same
+      }, "ctlList")
+      context.system.receptionist ! Receptionist.Subscribe(controllerKey, blist.ref)
+
+      new MqttSub(context)
+    }
   }
 }
 
-class MqttSub(ctx: ActorContext[String], controller: ActorRef[BaseCommand]) extends AbstractBehavior[String](ctx) {
+class MqttSub(ctx: ActorContext[String]) extends AbstractBehavior[String](ctx) {
+
+  import MqttSub.controllerList
 
   val piCar = "piCar"
   val piTripod = "piTripod"
@@ -63,7 +80,9 @@ class MqttSub(ctx: ActorContext[String], controller: ActorRef[BaseCommand]) exte
             }
             case Right(carCmd) => {
               println(s"send command ${carCmd} to car.")
-              controller.tell(carCmd)
+              controllerList.foreach { (ctl: ActorRef[BaseCommand]) =>
+                ctl.tell(carCmd)
+              }
             }
           }
         }
@@ -76,7 +95,9 @@ class MqttSub(ctx: ActorContext[String], controller: ActorRef[BaseCommand]) exte
             case Right(tripodCmd) => {
               println(s"send command ${tripodCmd} to car.")
               try{
-                controller.tell(tripodCmd)
+                controllerList.foreach { ctl =>
+                  ctl.tell(tripodCmd)
+                }
               }catch {
                 case x: Exception => println(x)
               }

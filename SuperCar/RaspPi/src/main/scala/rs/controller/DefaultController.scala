@@ -7,9 +7,11 @@ import com.typesafe.scalalogging.Logger
 import rs.actor.{BaseCommand, CarCommand, EchoDirection, EchoInfo, TripodCommand}
 import rs.sensor.SoundEcho
 
-val controllerKey = ServiceKey[BaseCommand]("control")
+
 
 object DefaultController {
+
+  import rs.controllerKey
 
   def apply(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand], echo: ActorRef[EchoDirection]): Behavior[BaseCommand] = {
     Behaviors.setup{ ctx =>
