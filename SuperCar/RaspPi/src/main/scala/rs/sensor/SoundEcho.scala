@@ -7,27 +7,38 @@ import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import java.time.Duration
 import rs.dev.{GpioDevDigitalIn, GpioDevDigitalOut}
 import com.typesafe.scalalogging.Logger
-import rs.actor.{EchoEvent, EchoInfo}
+import rs.actor.{BaseCommand, EchoDirection, EchoEvent, EchoInfo}
 
 import scala.concurrent.duration.{FiniteDuration, SECONDS}
 
 object SoundEcho {
 
+  import rs.controller.controllerKey
+
   val logger = Logger(getClass)
 
-  val soundEchoKey = ServiceKey[String]("soundEcho")
+  var controllerList = Set[ActorRef[BaseCommand]]()
 
-  def apply(controller: ActorRef[EchoEvent]): Behavior[String] = {
-    Behaviors.setup( (context:ActorContext[String]) =>
-      context.system.receptionist ! Receptionist.Register(soundEchoKey, context.self)
+  def apply(): Behavior[EchoEvent] = {
+    Behaviors.setup( (context:ActorContext[EchoEvent]) =>
+
+      val blist = context.spawn(Behaviors.receiveMessage{ (list: Receptionist.Listing) =>
+        val si: Set[ActorRef[BaseCommand]] = list.serviceInstances(controllerKey)
+        this.controllerList = si
+        println(s"update actor A list: ${this.controllerList}")
+        Behaviors.same
+      }, "ctlList")
+      context.system.receptionist ! Receptionist.Subscribe(controllerKey, blist.ref)
+
       Behaviors.withTimers { timer =>
-        timer.startTimerWithFixedDelay("check distance", FiniteDuration(1, SECONDS))
-        new SoundEcho(context, controller)
+        timer.startTimerWithFixedDelay(EchoInfo(0,0), FiniteDuration(1, SECONDS))
+        new SoundEcho(context)
       }
     )
   }
 }
-class SoundEcho(ctx: ActorContext[String], controller: ActorRef[EchoEvent]) extends AbstractBehavior(ctx) {
+class SoundEcho(ctx: ActorContext[EchoEvent]) extends AbstractBehavior(ctx) {
+  import SoundEcho.controllerList
 
   val logger = Logger(getClass)
 
@@ -40,7 +51,7 @@ class SoundEcho(ctx: ActorContext[String], controller: ActorRef[EchoEvent]) exte
     }
   }
 
-  override def onMessage(msg: String): Behavior[String] = {
+  override def onMessage(msg: EchoEvent): Behavior[EchoEvent] = {
     dev.high
     Thread.sleep(0, 10000)
     dev.low
@@ -54,8 +65,9 @@ class SoundEcho(ctx: ActorContext[String], controller: ActorRef[EchoEvent]) exte
     }
     val timeElasped = (endTime - startTime).toDouble / 1000000
     val distance = timeElasped * 34.3 / 2
-    controller.tell(EchoInfo(distance, 90.0d))
-
+    controllerList.foreach { (ctl: ActorRef[BaseCommand]) =>
+      ctl.tell(EchoInfo(distance, 90.0d))
+    }
     Behaviors.same
   }
 

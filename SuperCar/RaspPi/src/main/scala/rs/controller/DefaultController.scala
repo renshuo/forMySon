@@ -2,35 +2,25 @@ package rs.controller
 
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
-import akka.actor.typed.receptionist.Receptionist
+import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import com.typesafe.scalalogging.Logger
-import rs.actor.{BaseCommand, CarCommand, EchoEvent, TripodCommand}
+import rs.actor.{BaseCommand, CarCommand, EchoDirection, EchoInfo, TripodCommand}
 import rs.sensor.SoundEcho
 
+val controllerKey = ServiceKey[BaseCommand]("control")
 
 object DefaultController {
 
-
-
-  def apply(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]): Behavior[BaseCommand] = {
+  def apply(car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand], echo: ActorRef[EchoDirection]): Behavior[BaseCommand] = {
     Behaviors.setup{ ctx =>
-////      ctx.spawnAnonymous(SoundEcho())
-//      ctx.system.receptionist ! Receptionist.Subscribe(SoundEcho.soundEchoKey, ctx.self)
-//      Behaviors.receiveMessagePartial[Receptionist.Listing] {
-//        case SoundEcho.soundEchoKey.Listing(listings) => {
-//          //listings.foreach(ps => ctx.spawnAnonymous(SoundEcho(ps)))
-//          Behaviors.same
-//        }
-//      }
-      new DefaultController(ctx, car, tripod)
+      ctx.system.receptionist ! Receptionist.Register(controllerKey, ctx.self)
+      new DefaultController(ctx, car, tripod, echo)
     }
   }
 
 }
 
-class DefaultController(ctx: ActorContext[BaseCommand], car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand]) extends AbstractBehavior[BaseCommand](ctx) {
-
-
+class DefaultController(ctx: ActorContext[BaseCommand], car: ActorRef[CarCommand], tripod: ActorRef[TripodCommand], echo: ActorRef[EchoDirection]) extends AbstractBehavior[BaseCommand](ctx) {
 
   val log = Logger(getClass)
 
@@ -45,8 +35,8 @@ class DefaultController(ctx: ActorContext[BaseCommand], car: ActorRef[CarCommand
         log.info(s"get a tripod command: ${tripodCommand}")
         tripod.tell(tripodCommand)
       }
-      case echoEvent: EchoEvent => {
-        log.info(s"get a echo event: ${echoEvent}")
+      case echoInfo: EchoInfo => {
+        log.info(s"get a echo event: ${echoInfo}")
       }
     }
     Behaviors.same

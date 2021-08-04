@@ -37,7 +37,7 @@ class EchoController(context: ActorContext[String], car: ActorRef[CarCommand]) e
     Behaviors.same
   }, "handler")
 
-  val echo: ActorRef[String] = context.spawn(SoundEcho(handler), "echo" )
+  val echo: ActorRef[EchoEvent] = context.spawn(SoundEcho(), "echo" )
 
   override def onMessage(msg: String): Behavior[String] = {
     context.log.info("start echo controller.")
