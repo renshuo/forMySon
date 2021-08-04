@@ -2,11 +2,14 @@ import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.FiniteDuration
+
 @main def receptionTest: Unit = {
   val system = ActorSystem.create(Behaviors.setup[String]( (ctx:ActorContext[String]) => Behaviors.receiveMessage{ msg =>
+    val b = ctx.spawn(ActorB(), "b")
     val a = ctx.spawn(ActorA(), "a")
     val a2= ctx.spawn(ActorA(), "a2")
-    val b = ctx.spawn(ActorB(), "b")
     println(s"create a,b: ${a}, ${b} ")
     Behaviors.same
   }), "sys")
@@ -36,20 +39,31 @@ object ActorB {
   var someA = Set[ActorRef[String]]()
 
   def apply() = {
-    Behaviors.setup[Receptionist.Listing | String]{ctx =>
-      ctx.system.receptionist ! Receptionist.Subscribe(key, ctx.self)
+    Behaviors.setup[String]{ctx =>
 
-      Behaviors.receiveMessage[Receptionist.Listing| String] {
-        case key.Listing(listings) => {
-          println(s"list changed: ${listings}")
-          Behaviors.same
-        }
-        case x:String => {
-          println(s"here are actor A: ${someA}")
-          Behaviors.same
-        }
+      val blist = ctx.spawn(Behaviors.receiveMessage{ (list: Receptionist.Listing) =>
+        val si: Set[ActorRef[String]] = list.serviceInstances(key)
+        this.someA = si
+        println(s"update actor A list: ${this.someA}")
+        Behaviors.same
+      }, "blist")
+      ctx.system.receptionist ! Receptionist.Subscribe(key, blist.ref)
+
+      Behaviors.withTimers { ts =>
+        ts.startTimerWithFixedDelay("timer", FiniteDuration(1, TimeUnit.SECONDS))
+        new ActorB().start()
       }
     }
+  }
+}
+
+class ActorB {
+import ActorB.someA
+
+  def start() = Behaviors.receive { (ctx: ActorContext[String], msg: String) =>
+    println(s"get common msg: ${msg} , actorA is ${ActorB.someA}")
+    ctx.spawn(ActorA(), s"newA${someA.size}")
+    Behaviors.same
   }
 }
 
