@@ -18,7 +18,7 @@ class MqttSubTest extends AnyFlatSpec with should.Matchers {
 
   "a mqtt sub" should "get message from a mqtt broker" in {
     val ctl = testkit.createTestProbe[BaseCommand]()
-    val mqt = testkit.spawn(MqttSub(ctl.ref), "mqtt")
+    val mqt = testkit.spawn(MqttSub(), "mqtt")
     mqt.tell("start")
     Thread.sleep(1000)
 
