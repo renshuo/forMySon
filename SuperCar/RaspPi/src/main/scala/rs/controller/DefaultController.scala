@@ -7,6 +7,9 @@ import com.typesafe.scalalogging.Logger
 import rs.actor.*
 import rs.sensor.SoundEcho
 
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.FiniteDuration
+
 
 
 object DefaultController {
@@ -27,7 +30,7 @@ class DefaultController(ctx: ActorContext[BaseCommand], car: ActorRef[CarCommand
   val log = Logger(getClass)
 
   val ledDev = ctx.spawn(Led(), "led")
-   ledDev.tell(LedInit())
+  ctx.scheduleOnce(FiniteDuration(3, TimeUnit.SECONDS), ledDev, LedInit())
 
   val joy: ActorRef[ActorRef[JoyCommand]] = ctx.spawn(JoySticker(), "joy")
   joy.tell(ctx.self)
@@ -88,8 +91,8 @@ class DefaultController(ctx: ActorContext[BaseCommand], car: ActorRef[CarCommand
       case 2 => tripod ! (if isDown then TripodVelocity(0, 2) else TripodVelocity(0, 0))
       case 4 => car ! (if isDown then MoveRight(70) else Stop())
       case 5 => car ! (if isDown then MoveLeft(70) else Stop())
-      case 9 => ledDev ! LedToggle()
-      case 8 => ledDev ! LedToggle()
+      case 6 => if isDown then ledDev ! LedToggle()
+      case 7 => if isDown then ledDev ! LedBlink(3, 6)
       case _ => {}
     }
   }
