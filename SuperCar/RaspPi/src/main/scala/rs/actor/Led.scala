@@ -13,15 +13,17 @@ object Led{
 
 class Led(ctx: ActorContext[LedCommand]) extends AbstractBehavior[LedCommand](ctx){
 
-  var ledStatus = true
+  var ledDev:GpioDevDigitalOut = _
 
-
-  val led = new GpioDevDigitalOut(25)
-
-
-  override def onMessage(msg: LedCommand): Behavior[LedCommand] = {
-    ledStatus = !ledStatus
-    if (ledStatus) led.high else led.low
+  override def onMessage(msg: LedCommand): Behavior[LedCommand] = Behaviors.receiveMessage { (msg: LedCommand) =>
+    msg match {
+      case ledInit: LedInit => {
+        ledDev = new GpioDevDigitalOut(25)
+      }
+      case ledToggle: LedToggle => {
+        ledDev.toggle
+      }
+    }
     Behaviors.same
   }
 }

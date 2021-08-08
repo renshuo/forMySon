@@ -41,8 +41,8 @@ class MainController(ctx: ActorContext[String]) extends AbstractBehavior[String]
           case 2 => webActor ! (if isDown then TripodVelocity(0, 2) else TripodVelocity(0, 0))
           case 4 => webActor ! (if isDown then MoveRight(70) else Stop())
           case 5 => webActor ! (if isDown then MoveLeft(70) else Stop())
-          case 9 => webActor ! LedCommand()
-          case 8 => webActor ! LedCommand()
+          case 9 => webActor ! LedToggle()
+          case 8 => webActor ! LedToggle()
         }
       }
       case JoyAxisEvent(axisNum, axisValue) => {

@@ -1,3 +1,5 @@
 package rs.actor
 
-case class LedCommand(brightness: Double) extends BaseCommand
+sealed trait LedCommand extends BaseCommand
+case class LedToggle() extends LedCommand
+case class LedInit() extends LedCommand
