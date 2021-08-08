@@ -14,18 +14,18 @@ import scala.util.{Failure, Success}
 object WebClientActor {
 
   def apply() = {
-    Behaviors.setup[CarCommand | TripodCommand]( ctx => new WebClientActor(ctx).ready())
+    Behaviors.setup[BaseCommand]( ctx => new WebClientActor(ctx).ready())
   }
 }
 
-class WebClientActor(ctx: ActorContext[CarCommand | TripodCommand]) {
+class WebClientActor(ctx: ActorContext[BaseCommand]) {
   val log = Logger(getClass)
 
   given executorContext: ExecutionContext = ctx.executionContext
   given materializer: Materializer = Materializer(ctx)
-  given system: ActorSystem[CarCommand | TripodCommand] = ctx.system.asInstanceOf[ActorSystem[CarCommand | TripodCommand]]
+  given system: ActorSystem[BaseCommand] = ctx.system.asInstanceOf[ActorSystem[BaseCommand]]
 
-  def ready(): Behavior[CarCommand | TripodCommand] = Behaviors.receiveMessage{ (msg: CarCommand | TripodCommand) =>
+  def ready(): Behavior[BaseCommand] = Behaviors.receiveMessage{ (msg: BaseCommand) =>
     println(s"get web event : ${msg}")
 
     import io.circe.parser._
@@ -33,22 +33,11 @@ class WebClientActor(ctx: ActorContext[CarCommand | TripodCommand]) {
     import io.circe.syntax._
     import io.circe._
     val ip = "192.168.31.242"
-    val url:String = if (msg.isInstanceOf[CarCommand]) {
-      s"http://${ip}:8010/car"
-    } else if (msg.isInstanceOf[TripodCommand]) {
-      s"http://${ip}:8010/tripod"
-    } else {
-      s"http://${ip}:8010/"
+    val postReq1 = msg match {
+      case carCommand: CarCommand => Post(s"http://${ip}:8010/car", msg.asInstanceOf[CarCommand].asJson.noSpaces)
+      case tripodCommand: TripodCommand => Post(s"http://${ip}:8010/tripod", msg.asInstanceOf[TripodCommand].asJson.noSpaces)
+      case ledCommand: LedCommand => Post(s"http://${ip}:8010/led", msg.asInstanceOf[LedCommand].asJson.noSpaces)
     }
-    val postReq1 = (msg match {
-      case x: CarCommand => {
-        Post(url, msg.asInstanceOf[CarCommand].asJson.noSpaces)
-      }
-      case x: TripodCommand => {
-        Post(url, msg.asInstanceOf[TripodCommand].asJson.noSpaces)
-      }
-      case _ => Post(url, "")
-    })
     Http().singleRequest(postReq1).onComplete {
       case Success(resp) => {
         resp.entity.dataBytes

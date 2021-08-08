@@ -22,7 +22,7 @@ class MainController(ctx: ActorContext[String]) extends AbstractBehavior[String]
 
   val joy: ActorRef[ActorRef[JoyCommand]] = ctx.spawn(JoySticker(), "joy")
 
-  val webActor: ActorRef[CarCommand | TripodCommand] = ctx.spawn(WebClientActor(), "webClient")
+  val webActor: ActorRef[BaseCommand] = ctx.spawn(WebClientActor(), "webClient")
 
   var tripodP = 90
   var tripodD = 90
@@ -41,6 +41,8 @@ class MainController(ctx: ActorContext[String]) extends AbstractBehavior[String]
           case 2 => webActor ! (if isDown then TripodVelocity(0, 2) else TripodVelocity(0, 0))
           case 4 => webActor ! (if isDown then MoveRight(70) else Stop())
           case 5 => webActor ! (if isDown then MoveLeft(70) else Stop())
+          case 6 => webActor ! LedCommand(70.0d)
+          case 7 => webActor ! LedCommand(0d)
           case _ => {}
         }
       }

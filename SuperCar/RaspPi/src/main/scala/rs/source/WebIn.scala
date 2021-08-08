@@ -82,6 +82,23 @@ class WebIn(context: ActorContext[String]) extends AbstractBehavior[String](cont
             }
           }
       }
+    ~ {
+      pathPrefix("led") {
+        post {
+          entity(as[String]) { ent =>
+            val decoded = decode[LedCommand](ent)
+            decoded match {
+              case Left(e) => complete(s"geterror: ${e}")
+              case Right(ledCmd) => {
+                logger.info(s"get led event: ${ledCmd}")
+                controllerList.foreach { _.tell(ledCmd) }
+                complete(s"send command ${ledCmd} to controller")
+              }
+            }
+          }
+        }
+      }
+    }
 
   override def onMessage(msg: String): Behavior[String] = {
     context.log.info("start web controller.")

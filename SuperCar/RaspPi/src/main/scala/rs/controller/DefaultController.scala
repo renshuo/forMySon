@@ -4,7 +4,7 @@ import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{AbstractBehavior, ActorContext, Behaviors}
 import akka.actor.typed.receptionist.{Receptionist, ServiceKey}
 import com.typesafe.scalalogging.Logger
-import rs.actor.{BaseCommand, CarCommand, EchoDirection, EchoInfo, TripodCommand}
+import rs.actor.{BaseCommand, CarCommand, EchoDirection, EchoInfo, Led, LedCommand, TripodCommand}
 import rs.sensor.SoundEcho
 
 
@@ -26,6 +26,8 @@ class DefaultController(ctx: ActorContext[BaseCommand], car: ActorRef[CarCommand
 
   val log = Logger(getClass)
 
+  val ledDev = ctx.spawn(Led(), "led")
+
   override def onMessage(msg: BaseCommand): Behavior[BaseCommand] = {
     // how to deal with a CarCommand or TripodCommand
     msg match {
@@ -39,6 +41,9 @@ class DefaultController(ctx: ActorContext[BaseCommand], car: ActorRef[CarCommand
       }
       case echoInfo: EchoInfo => {
         log.info(s"get a echo event: ${echoInfo}")
+      }
+      case ledCommand: LedCommand => {
+        ledDev.tell(ledCommand)
       }
     }
     Behaviors.same
