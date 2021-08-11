@@ -7,8 +7,10 @@ import akka.stream.scaladsl.{FileIO, Source}
 import akka.util.ByteString
 import com.typesafe.scalalogging.Logger
 
-import java.io.{File, FileInputStream}
+import java.io.{File, FileInputStream, FileNotFoundException}
 import java.nio.file.Paths
+import java.util.concurrent.TimeUnit
+import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
 
 sealed trait JoyCommand extends BaseCommand
@@ -17,7 +19,7 @@ case class JoyAxisEvent(axisNum: Int, axisValue: Int) extends JoyCommand
 
 object JoySticker {
   def apply() = {
-    Behaviors.setup[ActorRef[JoyCommand]]( ctx => new JoySticker(ctx).start())
+    Behaviors.setup[ActorRef[JoyCommand]]( ctx => new JoySticker(ctx).init())
   }
 }
 
@@ -26,12 +28,28 @@ class JoySticker(ctx: ActorContext[ActorRef[JoyCommand]]) {
   val log = Logger(getClass)
 
   val f:File = File("/dev/input/js0")
-  val os = new FileInputStream(f)
+  var os: FileInputStream = null
 
   extension (b: Byte) {
     def unsign(bit: Int): Long = (b & 0xff).toLong << bit
   }
 
+  def init(): Behavior[ActorRef[JoyCommand]] = Behaviors.receiveMessage { (eventHandler: ActorRef[JoyCommand]) =>
+    try {
+      os = new FileInputStream(f)
+      ctx.scheduleOnce(FiniteDuration(1, TimeUnit.SECONDS), ctx.self, eventHandler)
+      start()
+    }catch {
+      case x: FileNotFoundException => {
+        println(s"${f} not found, wait 1 second.")
+        ctx.scheduleOnce(FiniteDuration(1, TimeUnit.SECONDS), ctx.self, eventHandler)
+        Behaviors.same
+      }
+      case x: Throwable => {
+        throw x
+      }
+    }
+  }
   def start():Behavior[ActorRef[JoyCommand]] = Behaviors.receiveMessage { (joyEventHandler: ActorRef[JoyCommand]) =>
     /**
      * 如果使用akka stream, 底层nio在读取文件前会执行seek操作，但是 js0 是不支持seek的
