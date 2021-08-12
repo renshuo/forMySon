@@ -1,5 +1,6 @@
 package rs.actor
 
+import akka.NotUsed
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors}
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import akka.stream.IOResult
@@ -12,6 +13,7 @@ import java.nio.file.Paths
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future}
+import scala.io.BufferedSource
 
 sealed trait JoyCommand extends BaseCommand
 case class JoyBtnEvent(btnNum: Int, isDown: Boolean) extends JoyCommand
@@ -27,30 +29,27 @@ class JoySticker(ctx: ActorContext[ActorRef[JoyCommand]]) {
 
   val log = Logger(getClass)
 
-  val f:File = File("/dev/input/js0")
-  var os: FileInputStream = null
+  val inputFileName = "/dev/input/js0"
 
   extension (b: Byte) {
     def unsign(bit: Int): Long = (b & 0xff).toLong << bit
   }
 
   def init(): Behavior[ActorRef[JoyCommand]] = Behaviors.receiveMessage { (eventHandler: ActorRef[JoyCommand]) =>
-    try {
-      os = new FileInputStream(f)
+    val devicesDesc: BufferedSource = scala.io.Source.fromFile("/proc/bus/input/devices")
+    val stream: Source[String, NotUsed] = Source.fromIterator(devicesDesc.getLines)
+    // stream.splitWhen( p => p.isBlank)
+    val f:File = File(inputFileName)
+    if (f.exists() && f.canRead()) {
+      val os = new FileInputStream(f)
       ctx.scheduleOnce(FiniteDuration(1, TimeUnit.SECONDS), ctx.self, eventHandler)
-      start()
-    }catch {
-      case x: FileNotFoundException => {
-        println(s"${f} not found, wait 1 second.")
-        ctx.scheduleOnce(FiniteDuration(1, TimeUnit.SECONDS), ctx.self, eventHandler)
-        Behaviors.same
-      }
-      case x: Throwable => {
-        throw x
-      }
+      start(os)
+    } else {
+      ctx.scheduleOnce(FiniteDuration(1, TimeUnit.SECONDS), ctx.self, eventHandler)
+      Behaviors.same
     }
   }
-  def start():Behavior[ActorRef[JoyCommand]] = Behaviors.receiveMessage { (joyEventHandler: ActorRef[JoyCommand]) =>
+  def start(os: FileInputStream):Behavior[ActorRef[JoyCommand]] = Behaviors.receiveMessage { (joyEventHandler: ActorRef[JoyCommand]) =>
     /**
      * 如果使用akka stream, 底层nio在读取文件前会执行seek操作，但是 js0 是不支持seek的
      */
@@ -61,6 +60,7 @@ class JoySticker(ctx: ActorContext[ActorRef[JoyCommand]]) {
     Future {
       while(true) {
         val ev = os.readNBytes(8)
+        //println(s"get js data: ${ev.map(x => x.unsign(0).toHexString).mkString(" ")} : ${new String(ev)}")
         val timeStamp = ev(0).unsign(0) + ev(1).unsign(8) + ev(2).unsign(16) + ev(3).unsign(24)
         val value = ev(4).toLong + ev(5).toLong << 8
         val type1 = ev(6).unsign(0)

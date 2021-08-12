@@ -1,5 +1,9 @@
 
 
+import akka.actor.typed.ActorSystem
+import akka.actor.typed.scaladsl.Behaviors
+import rs.actor.{JoyCommand, JoySticker}
+
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, DataInputStream, File, FileInputStream}
 import java.time.{LocalDateTime, ZoneOffset}
 
@@ -23,6 +27,15 @@ object Stick {
     }
     str
   }
+}
+
+@main def TestJoy2 = {
+  val sys = ActorSystem.create(JoySticker(), "sys")
+  val joyCmdHandler = sys.systemActorOf(Behaviors.receive[JoyCommand] { (ctx, msg) =>
+    println(s"get msg ${msg}")
+    Behaviors.same
+  }, "joyHandler")
+  sys.tell(joyCmdHandler)
 }
 
 @main def TestJoy: Unit ={
